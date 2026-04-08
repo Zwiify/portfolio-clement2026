@@ -1,0 +1,175 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const projects = [
+  { slug: "projet-de-fin-d-annee",        title: "Projet de fin d'année",       year: "2026" },
+  { slug: "design-graphique",             title: "Design Graphique",            year: "2025" },
+  { slug: "typographie-et-mise-en-page",  title: "Typographie & Mise en page",  year: "2025" },
+  { slug: "packaging",                    title: "Packaging",                   year: "2024" },
+  { slug: "perspective",                  title: "Perspective",                 year: "2024" },
+  { slug: "modele-vivant",                title: "Modèle vivant",               year: "2024" },
+  { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur",         year: "2023" },
+  { slug: "workshops",                    title: "Workshops",                   year: "2023" },
+  { slug: "personnel",                    title: "Personnel",                   year: "—"    },
+];
+---
+
+<BaseLayout title="Works — Clément Jorge">
+  <section class="work">
+    <header class="work-header">
+      <h1 class="work-title">Works</h1>
+      <p class="work-sub">
+        Une sélection de travaux récents.<br />
+        2023&thinsp;&mdash;&thinsp;2026.
+      </p>
+    </header>
+
+    <div class="work-list-wrap">
+      <ul class="projects">
+        {
+          projects.map((p) => (
+            <li class="project">
+              <a href={`/work/${p.slug}`} class="project-link">
+                <span class="project-title">{p.title}</span>
+                <span class="project-year">{p.year}</span>
+              </a>
+              <div class="project-preview" aria-hidden="true" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .work {
+    background: var(--sauge);
+    min-height: 100vh;
+    padding: 3rem var(--pad-x) 7rem;
+    color: var(--noir);
+  }
+
+  /* --- header : titre + intro alignés baseline --- */
+  .work-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 3rem;
+    margin: 0 0 3rem;
+    padding-right: 6rem; /* réserve la place du header nav fixé */
+  }
+
+  .work-title {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 8vw, 8.5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.83;
+    margin: 0;
+  }
+
+  .work-sub {
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: right;
+    margin: 0 0 0.65rem;
+    opacity: 0.7;
+    max-width: 24ch;
+  }
+
+  /* --- liste --- */
+  .work-list-wrap {
+    position: relative;
+  }
+
+  .projects {
+    position: relative;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .project {
+    position: static;
+    border-bottom: 1px solid var(--hairline);
+    transition: opacity 0.3s ease;
+  }
+
+  .project-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1rem 0 1.05rem;
+  }
+
+  .project-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.5vw, 2.4rem);
+    font-weight: 400;
+    letter-spacing: -0.022em;
+    line-height: 0.95;
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transform-origin: left center;
+  }
+
+  .project-year {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    opacity: 0.7;
+  }
+
+  /* --- hover : dim des autres + décalage du titre --- */
+  .projects:has(.project:hover) .project:not(:hover) {
+    opacity: 0.22;
+  }
+
+  .project:hover .project-title {
+    transform: translateX(1.75rem);
+  }
+
+  /* --- preview intégrée : grande, format portrait, décalée --- */
+  .project-preview {
+    position: absolute;
+    top: 50%;
+    left: 58%;
+    width: 38%;
+    max-width: 480px;
+    aspect-ratio: 4 / 5;
+    background: var(--bleu);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+    z-index: 5;
+  }
+
+  .project:hover .project-preview {
+    opacity: 1;
+  }
+
+  /* ---------- RESPONSIVE SIMPLE ---------- */
+  @media (max-width: 960px) {
+    .work-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .work-sub {
+      text-align: left;
+    }
+    .project-preview {
+      display: none;
+    }
+    .project:hover .project-title {
+      transform: translateX(0.5rem);
+    }
+    .projects:has(.project:hover) .project:not(:hover) {
+      opacity: 1;
+    }
+  }
+</style>

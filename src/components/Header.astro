@@ -1,0 +1,47 @@
+---
+const { pathname } = Astro.url;
+const isWork = pathname.startsWith("/work");
+---
+
+<header class="site-header">
+  <nav aria-label="Navigation principale">
+    <a href="/#about">About</a>
+    <a href="/work" class:list={{ active: isWork }}>Work</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 1.75rem;
+    right: var(--pad-x);
+    z-index: 100;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+  }
+
+  nav a {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--orange);
+    transition: opacity 0.15s ease;
+    padding: 0.1rem 0;
+  }
+
+  nav a:hover {
+    opacity: 0.55;
+  }
+
+  nav a.active {
+    opacity: 0.55;
+  }
+</style>
