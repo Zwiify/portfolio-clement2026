@@ -18,10 +18,6 @@ const projects = [
   <section class="work">
     <header class="work-header">
       <h1 class="work-title">Works</h1>
-      <p class="work-sub">
-        Une sélection de travaux récents.<br />
-        2023&thinsp;&mdash;&thinsp;2026.
-      </p>
     </header>
 
     <div class="work-list-wrap">
@@ -108,7 +104,10 @@ const projects = [
   }
 
   .project {
-    position: static;
+    /* Chaque ligne devient l'ancre de SA preview : la preview est
+       positionnée absolue à l'intérieur de cette box, donc elle suit
+       naturellement la position verticale de la ligne survolée. */
+    position: relative;
     border-bottom: 1px solid var(--hairline);
     transition: opacity 0.3s ease;
   }
@@ -123,6 +122,13 @@ const projects = [
     justify-content: space-between;
     gap: 2rem;
     padding: 0.9rem 0 0.95rem;
+    /* Position relative + z-index supérieur : le titre et l'année
+       restent en couche au-DESSUS de la preview, donc lisibles même
+       quand la preview s'étend sous eux à droite. Aucun padding-right
+       ici : la grille flex est plein-largeur, l'année reste ancrée
+       au vrai bord droit de la ligne (= bord droit de la page). */
+    position: relative;
+    z-index: 2;
   }
 
   /* titres en Inter 300 : éditorial, léger, tracking négatif pour la tension */
@@ -156,27 +162,48 @@ const projects = [
      mais au hover global deviennent aussi à 0.28 (cohérent) */
 
   /* ==========================================================
-     Preview intégrée en marge gauche, format portrait
-     Taille contenue pour laisser respirer le titre survolé :
-     elle se pose sur le début de la liste comme une annotation visuelle
+     Preview ancrée À DROITE sur la ligne survolée
+     ----------------------------------------------------------
+     Point clé : .project est position:relative, donc ce "right: 0
+     top: 50%" est calculé par rapport à la BOX de la ligne, pas
+     par rapport à la liste entière. Chaque preview a donc sa
+     propre position verticale, qui suit le rythme de la liste.
+     La preview dépasse visuellement de la ligne (aspect 4/5 =
+     beaucoup plus haute que la ligne) mais son CENTRE OPTIQUE
+     reste calé sur la ligne survolée → relation claire entre
+     ligne et image, esprit éditorial Blackpizza.
      ========================================================== */
   .project-preview {
     position: absolute;
+    /* right: 16% → la preview quitte le bord droit et mord vers le
+       centre de la page, tout en restant clairement dans la moitié
+       droite. Dialogue plus tendu avec la liste, esprit Blackpizza.
+       Les années restent ancrées au vrai bord droit car elles sont
+       dans .project-link (flow normal), indépendantes de cette couche. */
+    right: 16%;
     top: 50%;
-    left: 32%;
-    width: 30%;
-    max-width: 420px;
+    width: 34%;
+    max-width: 520px;
     aspect-ratio: 4 / 5;
     background: var(--bleu);
-    transform: translate(-50%, -50%);
+    /* translateY(-50%) centre la preview sur la ligne.
+       translateY ajouté de 8px au départ pour une entrée discrète. */
+    transform: translateY(calc(-50% + 8px));
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.28s ease;
-    z-index: 5;
+    transition:
+      opacity 0.32s ease,
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Couche de FOND : la preview passe sous le texte de sa ligne
+       (.project-link est en z-index: 2) pour que titre et année
+       restent toujours lisibles, même quand la preview les recouvre
+       visuellement à droite. */
+    z-index: 1;
   }
 
   .project:hover .project-preview {
     opacity: 1;
+    transform: translateY(-50%);
   }
 
   /* ==========================================================
