@@ -3,14 +3,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 const projects = [
   { slug: "projet-de-fin-d-annee",        title: "Projet de fin d'année",       year: "2026" },
-  { slug: "design-graphique",             title: "Design Graphique",            year: "2025" },
-  { slug: "typographie-et-mise-en-page",  title: "Typographie & Mise en page",  year: "2025" },
-  { slug: "packaging",                    title: "Packaging",                   year: "2024" },
-  { slug: "perspective",                  title: "Perspective",                 year: "2024" },
-  { slug: "modele-vivant",                title: "Modèle vivant",               year: "2024" },
-  { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur",         year: "2023" },
-  { slug: "workshops",                    title: "Workshops",                   year: "2023" },
-  { slug: "personnel",                    title: "Personnel",                   year: "—"    },
+  { slug: "design-graphique",             title: "Design Graphique",            year: "2026" },
+  { slug: "typographie-et-mise-en-page",  title: "Typographie & Mise en page",  year: "2026" },
+  { slug: "packaging",                    title: "Packaging",                   year: "2026" },
+  { slug: "perspective",                  title: "Perspective",                 year: "2026" },
+  { slug: "modele-vivant",                title: "Modèle vivant",               year: "2026" },
+  { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur",         year: "2026" },
+  { slug: "workshops",                    title: "Workshops",                   year: "2026" },
+  { slug: "personnel",                    title: "Personnel",                   year: "—",  muted: true },
 ];
 ---
 
@@ -28,9 +28,12 @@ const projects = [
       <ul class="projects">
         {
           projects.map((p) => (
-            <li class="project">
-              <a href={`/work/${p.slug}`} class="project-link">
-                <span class="project-title">{p.title}</span>
+            <li class={`project${p.muted ? " project--muted" : ""}`}>
+              <a
+                href={`/work/${p.slug}`}
+                class="project-link interactive-zone"
+              >
+                <span class="project-title" data-scramble-text="">{p.title}</span>
                 <span class="project-year">{p.year}</span>
               </a>
               <div class="project-preview" aria-hidden="true" />
@@ -46,11 +49,16 @@ const projects = [
   .work {
     background: var(--sauge);
     min-height: 100vh;
-    padding: 3rem var(--pad-x) 7rem;
+    /* Même alignement top que la homepage : --page-top pour la nav,
+       + --title-top-offset pour compenser l'overflow line-height
+       du titre afin que "Works" s'aligne visuellement avec la nav. */
+    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 7rem;
     color: var(--noir);
   }
 
-  /* --- header : titre + intro alignés baseline --- */
+  /* ==========================================================
+     Header : titre + petit sous-titre aligné baseline
+     ========================================================== */
   .work-header {
     display: flex;
     justify-content: space-between;
@@ -60,26 +68,36 @@ const projects = [
     padding-right: 6rem; /* réserve la place du header nav fixé */
   }
 
+  /* Même système typographique que le hero de la homepage :
+     même taille (--type-display), même line-height tendu (0.76),
+     même weight et même tracking. */
   .work-title {
     font-family: var(--font-display);
-    font-size: clamp(4rem, 8vw, 8.5rem);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 0.83;
+    font-size: var(--type-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-hero);
+    line-height: 0.76;
     margin: 0;
   }
 
   .work-sub {
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: var(--type-body);
+    font-weight: 400;
     line-height: 1.45;
     text-align: right;
-    margin: 0 0 0.65rem;
-    opacity: 0.7;
-    max-width: 24ch;
+    margin: 0;
+    opacity: 0.65;
+    /* Assez large pour que chaque phrase tienne sur une ligne :
+       la boîte du sous-titre doit rester plus petite que celle du
+       titre, sinon align-items: flex-end pousse le titre vers le bas
+       et casse l'alignement haut avec la nav. */
+    max-width: 36ch;
   }
 
-  /* --- liste --- */
+  /* ==========================================================
+     Liste de projets — dense, Inter 300, éditoriale
+     ========================================================== */
   .work-list-wrap {
     position: relative;
   }
@@ -95,55 +113,65 @@ const projects = [
     transition: opacity 0.3s ease;
   }
 
+  .project--muted {
+    opacity: 0.35;
+  }
+
   .project-link {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 2rem;
-    padding: 1rem 0 1.05rem;
+    padding: 0.9rem 0 0.95rem;
   }
 
+  /* titres en Inter 300 : éditorial, léger, tracking négatif pour la tension */
   .project-title {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 2.5vw, 2.4rem);
-    font-weight: 400;
-    letter-spacing: -0.022em;
+    font-family: var(--font-body);
+    font-size: var(--type-project);
+    font-weight: 300;
+    letter-spacing: -0.028em;
     line-height: 0.95;
     display: inline-block;
-    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
-    transform-origin: left center;
   }
 
   .project-year {
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.025em;
-    opacity: 0.7;
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    opacity: 0.6;
+    flex-shrink: 0;
   }
 
-  /* --- hover : dim des autres + décalage du titre --- */
+  /* ==========================================================
+     Hover : seule la preview parle, les autres s'atténuent
+     aucun transform sur le titre — pur travail d'opacité
+     ========================================================== */
   .projects:has(.project:hover) .project:not(:hover) {
-    opacity: 0.22;
+    opacity: 0.28;
   }
 
-  .project:hover .project-title {
-    transform: translateX(1.75rem);
-  }
+  /* Note : les projets .project--muted restent à 0.35 par défaut,
+     mais au hover global deviennent aussi à 0.28 (cohérent) */
 
-  /* --- preview intégrée : grande, format portrait, décalée --- */
+  /* ==========================================================
+     Preview intégrée en marge gauche, format portrait
+     Taille contenue pour laisser respirer le titre survolé :
+     elle se pose sur le début de la liste comme une annotation visuelle
+     ========================================================== */
   .project-preview {
     position: absolute;
     top: 50%;
-    left: 58%;
-    width: 38%;
-    max-width: 480px;
+    left: 32%;
+    width: 30%;
+    max-width: 420px;
     aspect-ratio: 4 / 5;
     background: var(--bleu);
     transform: translate(-50%, -50%);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.22s ease;
+    transition: opacity 0.28s ease;
     z-index: 5;
   }
 
@@ -151,22 +179,22 @@ const projects = [
     opacity: 1;
   }
 
-  /* ---------- RESPONSIVE SIMPLE ---------- */
+  /* ==========================================================
+     Responsive basique
+     ========================================================== */
   @media (max-width: 960px) {
     .work-header {
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
       margin-bottom: 2.5rem;
+      padding-right: 0;
     }
     .work-sub {
       text-align: left;
     }
     .project-preview {
       display: none;
-    }
-    .project:hover .project-title {
-      transform: translateX(0.5rem);
     }
     .projects:has(.project:hover) .project:not(:hover) {
       opacity: 1;

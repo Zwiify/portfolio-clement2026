@@ -1,0 +1,71 @@
+---
+/**
+ * CursorDot — petit point qui traîne la souris avec inertie lente.
+ * Compagnon du curseur natif (ne le remplace pas).
+ *
+ * Structure à deux niveaux :
+ * - #cursor-dot         : positionné par JS via transform (lerp)
+ * - .cursor-dot__inner  : le visuel (taille, couleur, opacité)
+ *
+ * Cette séparation permet d'animer la taille/opacité du point en CSS
+ * (via .is-over-link posée par TextHoverEffects) sans entrer en conflit
+ * avec le transform de positionnement.
+ *
+ * Garde-fous : désactivé sur touch / reduced-motion.
+ */
+---
+
+<div id="cursor-dot" aria-hidden="true">
+  <span class="cursor-dot__inner"></span>
+</div>
+
+<script>
+  const dot = document.getElementById("cursor-dot");
+  if (dot) {
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (canHover && !reduced) {
+      let tx = 0;
+      let ty = 0;
+      let cx = 0;
+      let cy = 0;
+      let active = false;
+      let rafId = 0;
+
+      // Inertie lente et fluide (plus bas = plus mou / plus de retard)
+      const ease = 0.08;
+
+      const loop = () => {
+        cx += (tx - cx) * ease;
+        cy += (ty - cy) * ease;
+        dot.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+        rafId = requestAnimationFrame(loop);
+      };
+
+      window.addEventListener(
+        "mousemove",
+        (e) => {
+          tx = e.clientX;
+          ty = e.clientY;
+          if (!active) {
+            active = true;
+            cx = tx;
+            cy = ty;
+            dot.classList.add("is-visible");
+            rafId = requestAnimationFrame(loop);
+          }
+        },
+        { passive: true }
+      );
+
+      document.addEventListener("mouseleave", () => {
+        dot.classList.remove("is-visible");
+      });
+
+      document.addEventListener("mouseenter", () => {
+        if (active) dot.classList.add("is-visible");
+      });
+    }
+  }
+</script>

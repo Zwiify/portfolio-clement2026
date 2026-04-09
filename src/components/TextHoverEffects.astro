@@ -1,0 +1,185 @@
+---
+/**
+ * TextHoverEffects — scramble texte au hover souris.
+ *
+ * Système minimal, direct : on attache UN couple de listeners
+ * `mouseenter` / `mouseleave` à CHAQUE `.interactive-zone`.
+ * mouseenter / mouseleave ne bubblent pas et ne se re-déclenchent
+ * pas quand la souris se déplace entre deux enfants de la même
+ * zone — donc aucun filtrage de `relatedTarget` nécessaire.
+ *
+ * Markup attendu (géré aussi par global.css pour l'underline) :
+ *   • .interactive-zone    = la zone hoverable
+ *   • [data-scramble-text] = le texte à scrambler, soit la zone
+ *                            elle-même, soit un descendant
+ *
+ * Résolution du target pour chaque zone (dans cet ordre) :
+ *   1. zone.querySelector("[data-scramble-text]")  (descendant)
+ *   2. zone si elle porte elle-même l'attribut
+ *
+ * Sécurité "texte original" :
+ *   - on stocke __scrambleOriginal une seule fois, à la prépa
+ *   - toute animation en cours est cancelAnimationFrame'd avant
+ *     d'en relancer une nouvelle
+ *   - à la fin de chaque tick progress>=1, textContent = original
+ *   - au cleanup HMR, tous les [data-scramble-text] de la page
+ *     sont restaurés via document.querySelectorAll
+ */
+---
+
+<script>
+  (() => {
+    // ----- Cleanup de l'exécution précédente (HMR-safe) -----
+    if (typeof window.__textHoverCleanup === "function") {
+      try {
+        window.__textHoverCleanup();
+      } catch (_) {
+        /* no-op */
+      }
+    }
+
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!canHover) {
+      window.__textHoverCleanup = () => {};
+      return;
+    }
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    // Cleanup global : restaure TOUS les textes d'origine, annule
+    // tout RAF en cours, retire les listeners via l'abort.
+    window.__textHoverCleanup = () => {
+      controller.abort();
+      document.querySelectorAll("[data-scramble-text]").forEach((el) => {
+        if (el.__scrambleRaf) {
+          cancelAnimationFrame(el.__scrambleRaf);
+          el.__scrambleRaf = 0;
+        }
+        if (typeof el.__scrambleOriginal === "string") {
+          el.textContent = el.__scrambleOriginal;
+        }
+      });
+    };
+
+    // ----- Scramble utilitaires -----
+    const POOL_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const POOL_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    const POOL_DIGIT = "0123456789";
+
+    const scrambleChar = (original) => {
+      if (/[0-9]/.test(original)) {
+        return POOL_DIGIT[Math.floor(Math.random() * 10)];
+      }
+      if (/[a-zA-Z]/.test(original)) {
+        const pool = original === original.toLowerCase() ? POOL_LOWER : POOL_UPPER;
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+      return original;
+    };
+
+    const runScramble = (target) => {
+      const text = target.__scrambleOriginal || "";
+      if (!text) return;
+
+      // Annule tout scramble en cours sur ce target — la nouvelle
+      // animation repart toujours du texte original stocké, jamais
+      // du textContent courant (qui peut être dans un état scrambled).
+      if (target.__scrambleRaf) {
+        cancelAnimationFrame(target.__scrambleRaf);
+        target.__scrambleRaf = 0;
+      }
+
+      const duration = Math.min(1000, Math.max(800, text.length * 45));
+      const start = performance.now();
+      const randomInterval = 60;
+      let lastRandomTime = 0;
+      const scrambleBuffer = new Array(text.length).fill("");
+
+      const tick = (now) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 2);
+        const revealCount = Math.floor(eased * text.length);
+
+        if (now - lastRandomTime >= randomInterval) {
+          for (let i = revealCount; i < text.length; i++) {
+            scrambleBuffer[i] = scrambleChar(text[i]);
+          }
+          lastRandomTime = now;
+        }
+
+        let out = "";
+        for (let i = 0; i < text.length; i++) {
+          if (i < revealCount) {
+            out += text[i];
+          } else {
+            out += scrambleBuffer[i] || scrambleChar(text[i]);
+          }
+        }
+        target.textContent = out;
+
+        if (progress < 1) {
+          target.__scrambleRaf = requestAnimationFrame(tick);
+        } else {
+          // GARANTIE : le texte original revient TOUJOURS à la fin.
+          target.textContent = text;
+          target.__scrambleRaf = 0;
+        }
+      };
+
+      target.__scrambleRaf = requestAnimationFrame(tick);
+    };
+
+    // ----- Résolution du target pour une zone -----
+    const resolveTarget = (zone) => {
+      // 1. descendant porteur de l'attribut
+      const nested = zone.querySelector("[data-scramble-text]");
+      if (nested) return nested;
+      // 2. la zone elle-même si elle porte l'attribut
+      if (zone.hasAttribute("data-scramble-text")) return zone;
+      return null;
+    };
+
+    // Préparation idempotente du target : stocke le texte original
+    // une seule fois, verrouille la min-width pour éviter le jitter.
+    const prepareTarget = (target) => {
+      if (typeof target.__scrambleOriginal !== "string") {
+        target.__scrambleOriginal = (target.textContent || "").trim();
+        const w = Math.ceil(target.getBoundingClientRect().width);
+        if (w > 0) target.style.minWidth = w + "px";
+      }
+    };
+
+    // ----- Attache des listeners directs sur chaque zone -----
+    //
+    // mouseenter / mouseleave NE bubblent PAS et ne fire qu'une
+    // seule fois par vraie entrée / sortie de la zone. Pas de
+    // faux déclenchements quand la souris se déplace entre
+    // deux enfants de la même zone. Pas de filtrage nécessaire.
+    const zones = document.querySelectorAll(".interactive-zone");
+    zones.forEach((zone) => {
+      const target = resolveTarget(zone);
+      if (!target) return;
+      prepareTarget(target);
+
+      zone.addEventListener(
+        "mouseenter",
+        () => {
+          if (!reduced) runScramble(target);
+        },
+        { signal }
+      );
+
+      zone.addEventListener(
+        "mouseleave",
+        () => {
+          if (!reduced) runScramble(target);
+        },
+        { signal }
+      );
+    });
+  })();
+</script>

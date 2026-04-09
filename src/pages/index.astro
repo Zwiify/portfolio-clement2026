@@ -14,9 +14,9 @@ const projects = [
 
 const timeline = [
   { year: "2026", desc: "Projet de fin d'année" },
-  { year: "2025", desc: "Workshop & typographie" },
-  { year: "2024", desc: "Croquis & perspective" },
-  { year: "2023", desc: "Début des études" },
+  { year: "2025", desc: "Lorem Ipsum" },
+  { year: "2024", desc: "Lorem Ipsum" },
+  { year: "2023", desc: "Lorem Ipsum" },
 ];
 ---
 
@@ -24,14 +24,15 @@ const timeline = [
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="about">
     <h1 class="hero-title">
-      <span class="hero-name">Clément&nbsp;Jorge&nbsp;&mdash;</span>
+      <span class="hero-name">Clément Jorge</span>
+      <span class="hero-dash" aria-hidden="true">&mdash;</span>
       <span class="hero-discipline">design<br />graphique</span>
     </h1>
 
     <p class="hero-intro">
       Actuellement étudiant en design graphique,<br />
-      j'apprécie particulièrement la typographie,<br />
-      l'édition et la mise en page.
+      j'apprécie particulièrement la xxx,<br />
+      l'xxx et xxx.
     </p>
   </section>
 
@@ -59,8 +60,8 @@ const timeline = [
     <div class="about-top">
       <blockquote class="about-quote">
         &ldquo;Petite phrase d'accroche,<br />
-        Lorem ipsum dolor sit amet, consectetur<br />
-        adipiscing elit, sed do eiusmod.&rdquo;
+        Lorem ipsum dolor sit amet,<br />
+        consectetur adipiscing elit.&rdquo;
       </blockquote>
       <p class="about-byline">
         &mdash;&nbsp;Clément Jorge, étudiant en design graphique
@@ -83,7 +84,7 @@ const timeline = [
 
       <figure class="about-media">
         <div class="about-img"></div>
-        <figcaption>portrait &mdash; atelier, 2025</figcaption>
+        <figcaption></figcaption>
       </figure>
 
       <div class="about-body">
@@ -106,63 +107,92 @@ const timeline = [
 
 <style>
   /* ==========================================================
-     HERO — deux masses typographiques en dialogue
+     HERO — deux masses typographiques alignées par le HAUT.
+     "Clément Jorge —", "design" et la nav partagent tous la
+     même ligne haute de composition :
+       top visuel = --page-top
+     obtenue via padding-top = --page-top + --title-top-offset
+     (où --title-top-offset compense l'overflow line-height 0.76).
+     "graphique" (seconde ligne de la discipline) s'étend sous
+     cette ligne haute, créant la tension verticale du hero
+     sans rompre l'implantation supérieure.
      ========================================================== */
   .hero {
-    padding: 4.5rem var(--pad-x) 0;
+    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 0;
     position: relative;
   }
 
   .hero-title {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: end;
-    column-gap: 2rem;
-    font-size: clamp(2.75rem, 6vw, 6.75rem);
-    line-height: 0.84;
-    font-weight: 700;
-    letter-spacing: -0.04em;
+    /* Flex à trois spans : name | dash | discipline. Le gap flex
+       s'applique automatiquement des DEUX côtés du tiret, donc
+       l'espace "Jorge ↔ —" est strictement égal à l'espace "— ↔ design"
+       par construction. Aucun &nbsp; parasite, aucune asymétrie. */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    /* Gap unique appliqué à chaque couture flex. Valeur ≈ une chasse
+       d'espace serrée à la taille display, qui rapproche visuellement
+       "design" du tiret sans coller. */
+    gap: 0.22em;
+    font-size: var(--type-display);
+    line-height: 0.76;
+    font-weight: 600;
+    letter-spacing: var(--tracking-hero);
+    /* La discipline fait 2 lignes, le name en fait 1 : le flex
+       prend la hauteur de la discipline, donc on ajoute assez
+       de marge basse pour laisser respirer l'intro sous le titre. */
     margin: 0 0 2.25rem;
   }
 
   .hero-name {
     color: var(--noir);
     white-space: nowrap;
-    grid-column: 1;
+    flex: 0 0 auto;
+  }
+
+  .hero-dash {
+    /* Tiret isolé dans son propre span pour que les gaps flex
+       de part et d'autre soient strictement égaux. Hérite de la
+       couleur noire du h1 (pas d'override nécessaire). */
+    flex: 0 0 auto;
   }
 
   .hero-discipline {
     color: var(--orange);
-    grid-column: 2;
-    justify-self: end;
     text-align: left;
+    flex: 0 0 auto;
   }
 
   .hero-intro {
     max-width: 26rem;
-    font-size: 13.5px;
+    font-size: var(--type-body);
     line-height: 1.55;
     color: var(--noir);
-    margin: 0;
+    /* Rattachement visuel au bloc noir "Clément Jorge —".
+       Le .hero-title est un flex dont la hauteur suit "design\ngraphique"
+       (2 lignes à line-height 0.76), donc son bord bas tombe très bas.
+       On remonte l'intro d'exactement 1 ligne display pour la caler
+       juste sous la première ligne du titre. L'intro est à gauche et
+       "graphique" est à droite → aucun risque de collision horizontale. */
+    margin: calc(var(--type-display) * -0.76 - 0.75rem) 0 0 0;
   }
 
   /* ==========================================================
-     COMPOSITION — grille 16×12, ratios extrêmes
+     COMPOSITION — grille 16×12 en rows viewport-relatifs
      ========================================================== */
   .composition {
     display: grid;
     grid-template-columns: repeat(16, 1fr);
-    grid-template-rows: repeat(12, 1fr);
-    column-gap: 1.4rem;
-    row-gap: 1.4rem;
+    grid-template-rows: repeat(12, 4.2vw);
+    column-gap: 1.3rem;
+    row-gap: 1.3rem;
     padding: 5rem var(--pad-x) 8rem;
-    min-height: 1020px;
   }
 
   .block {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    gap: 0.65rem;
     min-width: 0;
     min-height: 0;
   }
@@ -177,27 +207,29 @@ const timeline = [
 
   .placeholder-tag {
     position: absolute;
-    bottom: 0.9rem;
+    bottom: 0.85rem;
     right: 1rem;
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: var(--type-micro);
     font-weight: 500;
     letter-spacing: 0.1em;
     color: var(--noir);
     text-transform: uppercase;
   }
 
-  /* labels éditoriaux : plus présents, type caption de catalogue */
+  /* labels éditoriaux plus discrets et rythmés,
+     avec une min-height pour éviter le jumping quand ils wrappent */
   .label {
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: var(--type-caption);
     font-weight: 400;
     line-height: 1.15;
-    letter-spacing: 0;
+    letter-spacing: 0.015em;
     color: var(--noir);
     display: flex;
     align-items: baseline;
     gap: 0.3rem;
+    min-height: 1.6em;
   }
 
   .label-text {
@@ -205,25 +237,27 @@ const timeline = [
   }
 
   .label sup {
+    font-family: var(--font-body);
     font-size: 9px;
     font-weight: 500;
     letter-spacing: 0.06em;
     vertical-align: super;
-    opacity: 0.7;
+    opacity: 0.55;
   }
 
-  /* ---- placements asymétriques (16 cols × 12 rows) ---- */
-  .block--graphique   { grid-column: 1 / 5;    grid-row: 2 / 10; }  /* 4×8 portrait */
-  .block--workshop    { grid-column: 6 / 9;    grid-row: 1 / 4;  }  /* 3×3 carré */
-  .block--croquis     { grid-column: 6 / 8;    grid-row: 5 / 7;  }  /* 2×2 petit */
-  .block--whiteout    { grid-column: 9 / 14;   grid-row: 2 / 9;  }  /* 5×7 dominant */
-  .block--typo        { grid-column: 15 / 17;  grid-row: 1 / 8;  }  /* 2×7 narrow tall */
-  .block--mv1         { grid-column: 1 / 6;    grid-row: 10 / 13;}  /* 5×3 large paysage */
-  .block--mv2         { grid-column: 8 / 9;    grid-row: 10 / 12;}  /* 1×2 miniature */
-  .block--perspective { grid-column: 11 / 17;  grid-row: 9 / 13; }  /* 6×4 paysage */
+  /* ---- placements asymétriques ---- */
+  .block--graphique   { grid-column: 1 / 5;    grid-row: 2 / 10; }  /* portrait marqué */
+  .block--workshop    { grid-column: 6 / 9;    grid-row: 1 / 4;  }  /* carré moyen */
+  .block--croquis     { grid-column: 6 / 8;    grid-row: 5 / 7;  }  /* petit carré */
+  .block--whiteout    { grid-column: 9 / 14;   grid-row: 2 / 9;  }  /* dominant */
+  .block--typo        { grid-column: 15 / 17;  grid-row: 1 / 8;  }  /* très étroit */
+  .block--mv1         { grid-column: 1 / 6;    grid-row: 10 / 13;}  /* large paysage */
+  .block--mv2         { grid-column: 8 / 9;    grid-row: 10 / 12;}  /* miniature */
+  .block--perspective { grid-column: 11 / 17;  grid-row: 9 / 13; }  /* paysage large */
 
   /* ==========================================================
      ABOUT — double-page éditoriale
+     quote resserrée (20ch), timeline avec hairline pointillé
      ========================================================== */
   .about {
     background: var(--sauge);
@@ -231,30 +265,31 @@ const timeline = [
     color: var(--noir);
   }
 
-  /* --- haut : citation massive, alignée à droite --- */
+  /* --- haut : quote alignée droite, byline sous le coin --- */
   .about-top {
-    padding-left: 32%;
-    margin-bottom: 7rem;
+    padding-left: 34%;
+    margin-bottom: 5.5rem;
   }
 
   .about-quote {
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 3.15vw, 3.6rem);
-    font-weight: 400;
-    line-height: 1.06;
-    letter-spacing: -0.02em;
+    font-size: var(--type-quote);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: var(--tracking-tight);
     margin: 0 0 1.1rem;
+    max-width: 20ch;
   }
 
   .about-byline {
     font-family: var(--font-body);
-    font-size: 12.5px;
-    opacity: 0.65;
+    font-size: var(--type-caption);
+    opacity: 0.6;
     margin: 0;
     letter-spacing: 0.01em;
   }
 
-  /* --- bas : grille 3 colonnes type mise en page --- */
+  /* --- bas : grille 3 colonnes type double-page --- */
   .about-grid {
     display: grid;
     grid-template-columns: 0.85fr 1.1fr 1.6fr;
@@ -263,21 +298,25 @@ const timeline = [
     align-items: start;
   }
 
-  /* col 1 : timeline */
+  /* col 1 : timeline sobre, typographique uniquement */
+  .about-years {
+    padding-top: 0.35rem;
+  }
+
   .about-years dl {
     margin: 0;
     display: grid;
-    gap: 1.35rem;
+    gap: 1.3rem;
   }
 
   .about-year {
     display: grid;
-    gap: 0.3rem;
+    gap: 0.25rem;
   }
 
   .about-year dt {
     font-family: var(--font-display);
-    font-size: 13px;
+    font-size: var(--type-caption);
     font-weight: 600;
     letter-spacing: 0.02em;
   }
@@ -285,13 +324,13 @@ const timeline = [
   .about-year dd {
     margin: 0;
     font-family: var(--font-body);
-    font-size: 12px;
+    font-size: 11.5px;
     line-height: 1.4;
-    opacity: 0.7;
+    opacity: 0.65;
     max-width: 18ch;
   }
 
-  /* col 2 : image + caption */
+  /* col 2 : image + caption fine */
   .about-media {
     margin: 0;
   }
@@ -304,20 +343,20 @@ const timeline = [
 
   .about-media figcaption {
     font-family: var(--font-body);
-    font-size: 11px;
-    opacity: 0.6;
+    font-size: 10.5px;
+    opacity: 0.55;
     margin-top: 0.55rem;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
   }
 
-  /* col 3 : texte */
+  /* col 3 : texte resserré */
   .about-body {
     display: grid;
     gap: 1rem;
     font-family: var(--font-body);
-    font-size: 13.5px;
+    font-size: 13.25px;
     line-height: 1.6;
-    max-width: 36rem;
+    max-width: 34rem;
   }
 
   .about-body p {
@@ -329,20 +368,23 @@ const timeline = [
      ========================================================== */
   @media (max-width: 960px) {
     .hero-title {
-      grid-template-columns: 1fr;
-      align-items: start;
-      row-gap: 0.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
     }
     .hero-name { white-space: normal; }
+    .hero-dash {
+      /* Tiret orphelin entre deux lignes empilées n'a plus de sens
+         typographique en layout column : on le cache sur mobile. */
+      display: none;
+    }
     .hero-discipline {
-      grid-column: 1;
-      justify-self: start;
+      align-self: flex-start;
     }
 
     .composition {
       grid-template-columns: repeat(6, 1fr);
       grid-template-rows: auto;
-      min-height: 0;
     }
     .block {
       grid-column: auto !important;
