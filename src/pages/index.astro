@@ -26,13 +26,12 @@ const timeline = [
     <h1 class="hero-title">
       <span class="hero-name">Clément Jorge</span>
       <span class="hero-dash" aria-hidden="true">&mdash;</span>
-      <span class="hero-discipline">design<br />graphique</span>
+      <span class="hero-discipline">design<br /><span class="hero-graphique">graphique</span></span>
     </h1>
 
     <p class="hero-intro">
       Actuellement étudiant en design graphique,<br />
-      j'apprécie particulièrement la xxx,<br />
-      l'xxx et xxx.
+      <br />
     </p>
   </section>
 
@@ -161,6 +160,14 @@ const timeline = [
     color: var(--orange);
     text-align: left;
     flex: 0 0 auto;
+  }
+
+  /* Micro-ajustement optique : on descend uniquement le mot "graphique"
+     de quelques pixels pour rééquilibrer visuellement le bloc orange,
+     sans toucher à la taille, à la police, ni aux espacements. */
+  .hero-graphique {
+    display: inline-block;
+    transform: translateY(6px);
   }
 
   .hero-intro {

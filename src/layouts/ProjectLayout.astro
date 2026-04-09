@@ -52,7 +52,7 @@ export interface Props {
   intro?: string | string[];
   /** Légende sous l'image principale. */
   heroCaption?: string;
-  /** Ratio de l'image principale. Défaut : 16/9. */
+  /** Ratio de l'image principale. Défaut : 21/9 (panoramique éditorial). */
   heroRatio?: string;
   /** Ton du placeholder principal. Défaut : bleu. */
   heroTone?: "bleu" | "sauge" | "beige" | "orange" | "noir";
@@ -70,7 +70,7 @@ const {
   category,
   intro,
   heroCaption,
-  heroRatio = "16 / 9",
+  heroRatio = "21 / 9",
   heroTone = "bleu",
   gallery = [],
   pageTitle,
@@ -125,7 +125,7 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
           <figure class={`gallery-item gallery-item--${item.span ?? "half"} tone-${item.tone ?? "bleu"}`}>
             <div
               class="gallery-media"
-              style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "4 / 5")};`}
+              style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
             ></div>
             {item.caption && <figcaption>{item.caption}</figcaption>}
           </figure>

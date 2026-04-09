@@ -10,7 +10,7 @@ const projects = [
   { slug: "modele-vivant",                title: "Modèle vivant",               year: "2026" },
   { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur",         year: "2026" },
   { slug: "workshops",                    title: "Workshops",                   year: "2026" },
-  { slug: "personnel",                    title: "Personnel",                   year: "—",  muted: true },
+  { slug: "personnel",                    title: "Personnel",                   year: "—" },
 ];
 ---
 
@@ -24,7 +24,7 @@ const projects = [
       <ul class="projects">
         {
           projects.map((p) => (
-            <li class={`project${p.muted ? " project--muted" : ""}`}>
+            <li class="project">
               <a
                 href={`/work/${p.slug}`}
                 class="project-link interactive-zone"
@@ -60,7 +60,9 @@ const projects = [
     justify-content: space-between;
     align-items: flex-end;
     gap: 3rem;
-    margin: 0 0 3rem;
+    /* Plus d'air entre le titre "Works" et la première ligne de la
+       liste : on descend le bloc liste sans bouger le titre. */
+    margin: 0 0 7rem;
     padding-right: 6rem; /* réserve la place du header nav fixé */
   }
 
@@ -112,10 +114,6 @@ const projects = [
     transition: opacity 0.3s ease;
   }
 
-  .project--muted {
-    opacity: 0.35;
-  }
-
   .project-link {
     display: flex;
     align-items: baseline;
@@ -149,17 +147,6 @@ const projects = [
     opacity: 0.6;
     flex-shrink: 0;
   }
-
-  /* ==========================================================
-     Hover : seule la preview parle, les autres s'atténuent
-     aucun transform sur le titre — pur travail d'opacité
-     ========================================================== */
-  .projects:has(.project:hover) .project:not(:hover) {
-    opacity: 0.28;
-  }
-
-  /* Note : les projets .project--muted restent à 0.35 par défaut,
-     mais au hover global deviennent aussi à 0.28 (cohérent) */
 
   /* ==========================================================
      Preview ancrée À DROITE sur la ligne survolée
@@ -222,9 +209,6 @@ const projects = [
     }
     .project-preview {
       display: none;
-    }
-    .projects:has(.project:hover) .project:not(:hover) {
-      opacity: 1;
     }
   }
 </style>
