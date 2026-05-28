@@ -5,15 +5,18 @@ const isWork = pathname.startsWith("/work");
 
 <header class="site-header">
   <nav aria-label="Navigation principale">
-    <a href="/#about" class="interactive-zone" data-scramble-text="">About</a>
+    <a href="/#about" class="interactive-zone">
+      <span data-scramble-text="">About</span>
+    </a>
     <a
       href="/work"
       class:list={["interactive-zone", { active: isWork }]}
-      data-scramble-text=""
     >
-      Work
+      <span data-scramble-text="">Work</span>
     </a>
-    <a href="/#contact" class="interactive-zone" data-scramble-text="">Contact</a>
+    <a href="#contact" class="interactive-zone">
+      <span data-scramble-text="">Contact</span>
+    </a>
   </nav>
 </header>
 
@@ -38,21 +41,21 @@ const isWork = pathname.startsWith("/work");
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.15rem;
+    gap: 0.28rem;
     margin: 0;
     padding: 0;
   }
 
   nav a {
     font-family: var(--font-body);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.08em;
     line-height: 1;
     text-transform: uppercase;
     color: var(--orange);
     margin: 0;
-    padding: 0;
+    padding: 0.08rem 0 0.08rem 0.7rem;
     display: block;
   }
 

@@ -8,12 +8,12 @@
  * - Garantir la cohérence DA entre toutes les pages projet
  *   (même alignement haut que /work et la homepage, même
  *   système typographique, même fond, même rythme).
- * - Centraliser la structure (titre, méta, hero image, intro,
- *   galerie) pour que chaque nouvelle matière soit une simple
+ * - Centraliser la structure (titre, méta, hero image, blocs
+ *   de projets et galeries) pour que chaque nouvelle matière soit une simple
  *   fiche de données, pas un travail de CSS.
  *
  * Pilotage d'une page projet : on passe les données en frontmatter
- * (title, year, category, intro, hero, gallery) et la page affiche
+ * (title, year, category, hero, projectSections) et la page affiche
  * automatiquement la mise en page éditoriale.
  *
  * Pour des cas plus libres, un <slot /> "extra" est laissé en fin
@@ -41,6 +41,15 @@ export interface GalleryItem {
   tone?: "bleu" | "sauge" | "beige" | "orange" | "noir";
 }
 
+export interface ProjectSection {
+  /** Nom du projet affiché à gauche du bloc. */
+  title: string;
+  /** Description du projet affichée à droite, un ou plusieurs paragraphes. */
+  description?: string | string[];
+  /** Images du projet. La grille fonctionne par paire. */
+  images?: GalleryItem[];
+}
+
 export interface Props {
   /** Titre du projet — affiché en gros à la place de "Works". */
   title: string;
@@ -52,12 +61,14 @@ export interface Props {
   intro?: string | string[];
   /** Légende sous l'image principale. */
   heroCaption?: string;
-  /** Ratio de l'image principale. Défaut : 21/9 (panoramique éditorial). */
+  /** Ratio indicatif de l'image principale. Sa hauteur est plafonnée côté CSS. */
   heroRatio?: string;
   /** Ton du placeholder principal. Défaut : bleu. */
   heroTone?: "bleu" | "sauge" | "beige" | "orange" | "noir";
   /** Galerie d'images du projet. */
   gallery?: GalleryItem[];
+  /** Blocs de projets à afficher après l'image d'arrivée. */
+  projectSections?: ProjectSection[];
   /** Titre HTML de l'onglet. Défaut : "<title> — Clément Jorge". */
   pageTitle?: string;
   /** Meta description SEO. */
@@ -73,11 +84,18 @@ const {
   heroRatio = "21 / 9",
   heroTone = "bleu",
   gallery = [],
+  projectSections = [],
   pageTitle,
   description,
 } = Astro.props;
 
 const introParagraphs = Array.isArray(intro) ? intro : intro ? [intro] : [];
+const contentSections =
+  projectSections.length > 0
+    ? projectSections
+    : introParagraphs.length > 0 || gallery.length > 0
+      ? [{ title: "Projet", description: introParagraphs, images: gallery }]
+      : [];
 
 const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
 ---
@@ -108,29 +126,43 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     </figure>
 
     <!-- ============================================================
-         INTRO — texte éditorial resserré, deux paragraphes max
+         PROJECT SECTIONS — titre à gauche, texte à droite, images par paire
          ============================================================ -->
-    {introParagraphs.length > 0 && (
-      <section class="project-intro">
-        {introParagraphs.map((p) => <p>{p}</p>)}
-      </section>
-    )}
+    {contentSections.length > 0 && (
+      <div class="project-sections">
+        {contentSections.map((section) => {
+          const paragraphs = Array.isArray(section.description)
+            ? section.description
+            : section.description
+              ? [section.description]
+              : [];
 
-    <!-- ============================================================
-         GALLERY — grille 2 colonnes, items "half" ou "full"
-         ============================================================ -->
-    {gallery.length > 0 && (
-      <section class="project-gallery" aria-label="Galerie">
-        {gallery.map((item) => (
-          <figure class={`gallery-item gallery-item--${item.span ?? "half"} tone-${item.tone ?? "bleu"}`}>
-            <div
-              class="gallery-media"
-              style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
-            ></div>
-            {item.caption && <figcaption>{item.caption}</figcaption>}
-          </figure>
-        ))}
-      </section>
+          return (
+            <section class="project-section">
+              <div class="project-section-copy">
+                <h2>{section.title}</h2>
+                <div class="project-section-text">
+                  {paragraphs.map((p) => <p>{p}</p>)}
+                </div>
+              </div>
+
+              {(section.images?.length ?? 0) > 0 && (
+                <div class="project-section-gallery" aria-label={`Images - ${section.title}`}>
+                  {section.images?.map((item) => (
+                    <figure class={`gallery-item gallery-item--${item.span ?? "half"} tone-${item.tone ?? "bleu"}`}>
+                      <div
+                        class="gallery-media"
+                        style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
+                      ></div>
+                      {item.caption && <figcaption>{item.caption}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
     )}
 
     <!-- Slot libre pour du contenu spécifique à une page projet
@@ -147,10 +179,12 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
   .project {
     background: var(--sauge);
     color: var(--noir);
+    --project-rhythm: clamp(6rem, 10vw, 11rem);
     /* Ligne haute partagée avec la nav : --page-top + compensation
        du line-height 0.76 du titre display. */
     padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 7rem;
     min-height: 100vh;
+    isolation: isolate;
   }
 
   /* ==========================================================
@@ -158,11 +192,14 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
      aligné baseline basse comme sur /work
      ========================================================== */
   .project-header {
+    position: sticky;
+    top: calc(var(--page-top) + var(--title-top-offset));
+    z-index: 1;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: 3rem;
-    margin: 0 0 4.5rem;
+    margin: 0 0 clamp(10rem, 22vh, 18rem);
     padding-right: 6rem; /* réserve la place du header nav fixé */
   }
 
@@ -206,15 +243,18 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
   }
 
   /* ==========================================================
-     HERO image — bloc dominant, presque pleine largeur utile,
-     avec respiration autour (cf. chemin de fer)
+     HERO image — bloc d'ouverture volontairement plus haut que
+     le viewport : l'image dépasse en bas et appelle au scroll.
      ========================================================== */
   .project-hero {
-    margin: 0 0 3.5rem;
+    position: relative;
+    z-index: 2;
+    margin: 0 0 var(--project-rhythm);
   }
 
   .project-hero-media {
     width: 100%;
+    height: clamp(38rem, 88vh, 62rem);
     background: var(--bleu);
   }
 
@@ -227,28 +267,65 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
   }
 
   /* ==========================================================
-     INTRO — paragraphes empilés à gauche, largeur sobre
-     (cf. chemin de fer : 2 blocs de texte sous la grande image)
+     PROJECT SECTIONS — système répétable :
+     nom du projet à gauche, texte à droite, images par paire.
      ========================================================== */
-  .project-intro {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-    max-width: 60ch;
-    margin: 0 0 6rem 0;
+  .project-sections {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    gap: var(--project-rhythm);
+    background: var(--sauge);
   }
 
-  .project-intro p {
+  .project-sections::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--project-rhythm) * -1) 0 100%;
+    background: var(--sauge);
+    pointer-events: none;
+  }
+
+  .project-section {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  .project-section-copy {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.9fr) minmax(24rem, 1fr);
+    column-gap: clamp(2rem, 6vw, 7rem);
+    align-items: start;
+    min-height: clamp(14rem, 28vh, 22rem);
+  }
+
+  .project-section h2 {
     font-family: var(--font-body);
-    font-size: 13.25px;
-    line-height: 1.6;
+    font-size: clamp(1rem, 1.15vw, 1.35rem);
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .project-section-text {
+    display: grid;
+    gap: 1rem;
+    max-width: 58ch;
+  }
+
+  .project-section-text p {
+    font-family: var(--font-body);
+    font-size: clamp(1.35rem, 1.65vw, 2rem);
+    line-height: 1.32;
+    letter-spacing: -0.035em;
     margin: 0;
   }
 
   /* ==========================================================
-     GALLERY — grille stricte 2 × 2, items uniformes
+     GALLERY — grille stricte par paires, items uniformes
      ========================================================== */
-  .project-gallery {
+  .project-section-gallery {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 1.3rem;
@@ -310,12 +387,12 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
       flex-direction: row;
       gap: 1rem;
     }
-    .project-intro {
+    .project-section-copy {
       grid-template-columns: 1fr;
-      margin-left: 0;
-      margin-bottom: 4rem;
+      gap: 1.2rem;
+      min-height: 0;
     }
-    .project-gallery {
+    .project-section-gallery {
       grid-template-columns: 1fr;
       row-gap: 2rem;
     }

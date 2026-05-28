@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import ContactBlock from "../components/ContactBlock.astro";
 import CursorDot from "../components/CursorDot.astro";
+import PageTransition from "../components/PageTransition.astro";
 import TextHoverEffects from "../components/TextHoverEffects.astro";
 
 interface Props {
@@ -23,6 +24,15 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      try {
+        if (sessionStorage.getItem("cj-page-transition") === "1") {
+          document.documentElement.classList.add("has-page-transition-enter");
+        }
+      } catch (_) {
+        /* no-op */
+      }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -40,6 +50,7 @@ const {
     </main>
     <ContactBlock />
     <CursorDot />
+    <PageTransition />
     <TextHoverEffects />
   </body>
 </html>

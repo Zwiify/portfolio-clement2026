@@ -25,9 +25,9 @@
   --type-quote:    clamp(1.6rem, 2.9vw, 3.3rem);     /* about quote */
   --type-contact:  clamp(1.75rem, 2.7vw, 2.75rem);   /* email / tél */
   --type-project:  clamp(1.4rem, 2.25vw, 2.25rem);   /* /work item */
-  --type-body:     14px;
-  --type-caption:  12.5px;
-  --type-micro:    10px;
+  --type-body:     18px;
+  --type-caption:  15px;
+  --type-micro:    12px;
 
   /* tracking */
   --tracking-hero:   -0.055em;
@@ -43,7 +43,7 @@
      La compensation (0.12 * --type-display) absorbe l'overflow
      supérieur des glyphes dû à line-height: 0.76 sur les titres,
      pour que le TOP VISUEL des lettres tombe pile sur --page-top. */
-  --page-top: 3rem;
+  --page-top: 1rem;
   --title-top-offset: calc(var(--type-display) * 0.12);
 
   /* --page-top-line : alias sémantique de --page-top. C'est la
@@ -75,7 +75,7 @@
      d'overflow change avec une autre fonte display. */
   --nav-top-offset: var(--title-top-offset);
 
-  --pad-x: clamp(2rem, 3vw, 3.5rem);
+  --pad-x: clamp(0.75rem, 1vw, 1.25rem);
   --gap-s: 0.5rem;
   --gap-m: 1.25rem;
   --gap-l: 3rem;
@@ -96,6 +96,13 @@ body {
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -228,7 +235,34 @@ img {
   pointer-events: none;
   transition:
     transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.32s ease;
+    opacity 0.32s ease,
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    margin 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.18s ease,
+    border-radius 0.18s ease;
+}
+
+.cursor-dot__inner::before,
+.cursor-dot__inner::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: var(--orange);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.18s ease;
+}
+
+.cursor-dot__inner::before {
+  width: 26px;
+  height: 4px;
+}
+
+.cursor-dot__inner::after {
+  width: 4px;
+  height: 26px;
 }
 
 /* Quand le point survole un texte cliquable : disparaît totalement
@@ -240,10 +274,25 @@ img {
    la disparition du dot totalement indépendante du JS de scramble :
    le dot est un pur effet visuel secondaire, il ne peut plus être
    ni la cause, ni la condition du déclenchement du hover texte. */
-body:has(.interactive-zone:hover) #cursor-dot .cursor-dot__inner,
+body:has(.interactive-zone:hover):not(:has(.cursor-cross-zone:hover)) #cursor-dot .cursor-dot__inner,
 #cursor-dot.is-over-link .cursor-dot__inner {
   transform: scale(0);
   opacity: 0;
+}
+
+body:has(.cursor-cross-zone:hover) #cursor-dot .cursor-dot__inner {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  background: transparent;
+  border-radius: 0;
+  transform: scale(1);
+  opacity: 1;
+}
+
+body:has(.cursor-cross-zone:hover) #cursor-dot .cursor-dot__inner::before,
+body:has(.cursor-cross-zone:hover) #cursor-dot .cursor-dot__inner::after {
+  opacity: 1;
 }
 
 /* Sécurité CSS : masqué sur touch / pointer grossier */
@@ -289,8 +338,8 @@ body:has(.interactive-zone:hover) #cursor-dot .cursor-dot__inner,
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -0.14em;
-  height: 1px;
+  bottom: -0.08em;
+  height: max(1px, 0.035em);
   background: currentColor;
   transform: scaleX(0);
   transform-origin: right center;

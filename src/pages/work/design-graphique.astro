@@ -10,34 +10,19 @@
  *
  * Chemin de fer appliqué :
  *   1. Titre (système d'alignement haut existant)
- *   2. UNE grande image horizontale dominante
- *   3. DEUX paragraphes d'intro empilés à gauche
- *   4. QUATRE images en grille 2 × 2
- *   5. Footer (ContactBlock via BaseLayout)
+ *   2. Grande image d'arrivée
+ *   3. Blocs de projets répétables :
+ *      titre à gauche, texte à droite, images en grille par paire
+ *   4. Footer (ContactBlock via BaseLayout)
  * ------------------------------------------------------------
  */
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import type { GalleryItem } from "../../layouts/ProjectLayout.astro";
-
-const intro = [
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-];
-
-// Exactement 4 items, tous au même format → grille stricte 2 × 2.
-// Pas de ratio explicite : ils héritent du défaut "3 / 2" du layout.
-const gallery: GalleryItem[] = [
-  { span: "half", tone: "bleu" },
-  { span: "half", tone: "bleu" },
-  { span: "half", tone: "bleu" },
-  { span: "half", tone: "bleu" },
-];
+import { defaultMatterSections } from "../../data/matterPageTemplate";
 ---
 
 <ProjectLayout
   title="Design Graphique"
-  intro={intro}
   heroTone="bleu"
-  gallery={gallery}
+  projectSections={defaultMatterSections}
   description="Travaux de design graphique — affiches, identités et compositions éditoriales. Clément Jorge, 2025."
 />

@@ -1,22 +1,22 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const projects = [
-  { id: "graphique", label: "design graphique", num: "01" },
-  { id: "workshop", label: "workshop", num: "02" },
-  { id: "croquis", label: "croquis d'extérieur", num: "03" },
-  { id: "whiteout", label: "whiteout", num: "" },
-  { id: "typo", label: "typographie & mise en page", num: "04" },
-  { id: "mv1", label: "modèle vivant", num: "05" },
-  { id: "mv2", label: "modèle vivant", num: "06" },
-  { id: "perspective", label: "perspective", num: "07" },
+const featuredProjects = [
+  { id: "graphique", label: "design graphique", num: "01", image: "", href: "/work/design-graphique" },
+  { id: "workshop", label: "workshop", num: "06", image: "", href: "/work/workshops" },
+  { id: "croquis", label: "croquis d'extérieur", num: "03", image: "", href: "/work/croquis-d-exterieur" },
+  { id: "whiteout", label: "WHITEOUT", num: "07", image: "", href: "/work/projet-de-fin-d-annee" },
+  { id: "typo", label: "typo & mise en page", num: "04", image: "", href: "/work/typographie-et-mise-en-page" },
+  { id: "modele", label: "modèle vivant", num: "02", image: "", href: "/work/modele-vivant" },
+  { id: "packaging", label: "packaging", num: "05", image: "", href: "/work/packaging" },
 ];
 
+const portraitImage = "";
+
 const timeline = [
-  { year: "2026", desc: "Projet de fin d'année" },
-  { year: "2025", desc: "Lorem Ipsum" },
-  { year: "2024", desc: "Lorem Ipsum" },
-  { year: "2023", desc: "Lorem Ipsum" },
+  { year: "2025 — 2026", desc: "B1 Design Graphique" },
+  { year: "2023 — 2025", desc: "STAPS" },
+  { year: "2021 — 2022", desc: "Ostéopathie" },
 ];
 ---
 
@@ -38,35 +38,28 @@ const timeline = [
   <!-- ===================== COMPOSITION ===================== -->
   <section class="composition" aria-label="Sélection de projets">
     {
-      projects.map((p) => (
-        <article class={`block block--${p.id}`}>
-          <div class="placeholder">
-            {p.id === "whiteout" && <span class="placeholder-tag">WHITEOUT</span>}
-          </div>
-          {p.id !== "whiteout" && (
-            <span class="label">
-              <span class="label-text">{p.label}</span>
-              {p.num && <sup>{p.num}</sup>}
-            </span>
-          )}
-        </article>
+      featuredProjects.map((p) => (
+        <figure class={`project-card project-card--${p.id}`}>
+          <a
+            href={p.href}
+            class="project-card-link interactive-zone cursor-cross-zone"
+            aria-label={`Voir ${p.label}`}
+          >
+            <div class="project-image">
+              {p.image && <img src={p.image} alt="" loading="lazy" />}
+            </div>
+            <figcaption class="project-caption">
+              <span>{p.label}</span>
+              <sup>{p.num}</sup>
+            </figcaption>
+          </a>
+        </figure>
       ))
     }
   </section>
 
-  <!-- ===================== ABOUT / QUOTE ===================== -->
+  <!-- ===================== ABOUT / PRESENTATION ===================== -->
   <section class="about">
-    <div class="about-top">
-      <blockquote class="about-quote">
-        &ldquo;Petite phrase d'accroche,<br />
-        Lorem ipsum dolor sit amet,<br />
-        consectetur adipiscing elit.&rdquo;
-      </blockquote>
-      <p class="about-byline">
-        &mdash;&nbsp;Clément Jorge, étudiant en design graphique
-      </p>
-    </div>
-
     <div class="about-grid">
       <aside class="about-years" aria-label="Parcours">
         <dl>
@@ -82,23 +75,35 @@ const timeline = [
       </aside>
 
       <figure class="about-media">
-        <div class="about-img"></div>
+        <div class="about-img">
+          {portraitImage && <img src={portraitImage} alt="Portrait de Clément Jorge" loading="lazy" />}
+        </div>
         <figcaption></figcaption>
       </figure>
 
-      <div class="about-body">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-          ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+      <div class="about-copy">
+        <blockquote class="about-quote">
+          &ldquo;Petite phrase d'accroche, à définir autour de ma pratique et de mon regard graphique.&rdquo;
+        </blockquote>
+
+        <p class="about-byline">
+          Clément Jorge <span>— étudiant en design graphique</span>
         </p>
-        <p>
-          Duis aute irure dolor in reprehenderit in voluptate velit esse
-          cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-          cupidatat non proident, sunt in culpa qui officia deserunt mollit
-          anim id est laborum.
-        </p>
+
+        <div class="about-body">
+          <p>
+            Actuellement étudiant en design graphique, je développe une pratique
+            attentive aux formes imprimées, aux systèmes visuels et aux détails
+            de composition. J'aime construire des images, organiser des textes
+            et chercher le juste équilibre entre rigueur graphique et intuition.
+          </p>
+          <p>
+            Mon travail traverse le design éditorial, la typographie, l'image et
+            les objets graphiques. Cette page présentera progressivement mes
+            projets, mes expérimentations et les directions que je souhaite
+            approfondir dans la suite de mon parcours.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -185,135 +190,157 @@ const timeline = [
   }
 
   /* ==========================================================
-     COMPOSITION — grille 16×12 en rows viewport-relatifs
+     COMPOSITION — chemin de fer maîtrisé
      ========================================================== */
   .composition {
-    display: grid;
-    grid-template-columns: repeat(16, 1fr);
-    grid-template-rows: repeat(12, 4.2vw);
-    column-gap: 1.3rem;
-    row-gap: 1.3rem;
-    padding: 5rem var(--pad-x) 8rem;
+    position: relative;
+    min-height: clamp(58rem, 78vw, 92rem);
+    padding: 4.5rem var(--pad-x) 9rem;
   }
 
-  .block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-    min-width: 0;
-    min-height: 0;
+  .project-card {
+    position: absolute;
+    width: var(--card-size);
+    margin: 0;
+    transform-origin: center center;
+    transition:
+      filter 0.45s ease,
+      opacity 0.45s ease,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: filter, opacity, transform;
   }
 
-  .placeholder {
-    flex: 1;
+  .project-card-link {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .composition:has(.project-card:hover) .project-card:not(:hover) {
+    filter: blur(7px);
+    opacity: 0.46;
+    transform: scale(0.985);
+  }
+
+  .composition:has(.project-card:hover) .project-card:hover {
+    z-index: 8;
+    transform: scale(1.075);
+  }
+
+  .project-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
     background: var(--bleu);
     position: relative;
     overflow: hidden;
-    min-height: 0;
   }
 
-  .placeholder-tag {
-    position: absolute;
-    bottom: 0.85rem;
-    right: 1rem;
-    font-family: var(--font-body);
-    font-size: var(--type-micro);
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    color: var(--noir);
-    text-transform: uppercase;
+  .project-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
   }
 
-  /* labels éditoriaux plus discrets et rythmés,
-     avec une min-height pour éviter le jumping quand ils wrappent */
-  .label {
+  .project-caption {
     font-family: var(--font-body);
-    font-size: var(--type-caption);
+    font-size: clamp(1rem, 1.2vw, 1.55rem);
     font-weight: 400;
-    line-height: 1.15;
-    letter-spacing: 0.015em;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
     color: var(--noir);
-    display: flex;
-    align-items: baseline;
-    gap: 0.3rem;
-    min-height: 1.6em;
+    display: block;
+    margin-top: 0.45rem;
+    max-width: 100%;
   }
 
-  .label-text {
-    display: inline-block;
+  .project-caption span {
+    display: inline;
   }
 
-  .label sup {
+  .project-caption sup {
     font-family: var(--font-body);
-    font-size: 9px;
+    font-size: 0.42em;
     font-weight: 500;
-    letter-spacing: 0.06em;
+    line-height: 0;
+    letter-spacing: 0.04em;
+    margin-left: 0.22em;
+    position: relative;
+    top: -0.62em;
     vertical-align: super;
-    opacity: 0.55;
+    opacity: 0.65;
   }
 
-  /* ---- placements asymétriques ---- */
-  .block--graphique   { grid-column: 1 / 5;    grid-row: 2 / 10; }  /* portrait marqué */
-  .block--workshop    { grid-column: 6 / 9;    grid-row: 1 / 4;  }  /* carré moyen */
-  .block--croquis     { grid-column: 6 / 8;    grid-row: 5 / 7;  }  /* petit carré */
-  .block--whiteout    { grid-column: 9 / 14;   grid-row: 2 / 9;  }  /* dominant */
-  .block--typo        { grid-column: 15 / 17;  grid-row: 1 / 8;  }  /* très étroit */
-  .block--mv1         { grid-column: 1 / 6;    grid-row: 10 / 13;}  /* large paysage */
-  .block--mv2         { grid-column: 8 / 9;    grid-row: 10 / 12;}  /* miniature */
-  .block--perspective { grid-column: 11 / 17;  grid-row: 9 / 13; }  /* paysage large */
+  /* Tous les blocs gardent le même ratio. Seules la taille et la
+     position changent pour garder une composition vivante, mais tenue. */
+  .project-card--graphique {
+    --card-size: clamp(18rem, 20vw, 26rem);
+    left: var(--pad-x);
+    top: 5.2rem;
+  }
+
+  .project-card--workshop {
+    --card-size: clamp(6.5rem, 7vw, 9rem);
+    left: 27.2%;
+    top: 6.9rem;
+  }
+
+  .project-card--croquis {
+    --card-size: clamp(8.5rem, 9.7vw, 12.5rem);
+    left: 20.4%;
+    top: 25.2rem;
+  }
+
+  .project-card--whiteout {
+    --card-size: clamp(18rem, 20.4vw, 26.5rem);
+    left: 46.2%;
+    top: 8.3rem;
+  }
+
+  .project-card--typo {
+    --card-size: clamp(15rem, 17.6vw, 23rem);
+    right: var(--pad-x);
+    top: 4.1rem;
+  }
+
+  .project-card--modele {
+    --card-size: clamp(8rem, 9vw, 11.5rem);
+    left: 42.7%;
+    top: 32.2rem;
+  }
+
+  .project-card--packaging {
+    --card-size: clamp(13.5rem, 15.6vw, 20rem);
+    left: 70.8%;
+    top: 30.2rem;
+  }
 
   /* ==========================================================
-     ABOUT — double-page éditoriale
-     quote resserrée (20ch), timeline avec hairline pointillé
+     ABOUT — présentation : CV / portrait / texte
      ========================================================== */
   .about {
     background: var(--sauge);
-    padding: 7rem var(--pad-x) 9rem;
+    padding: 8rem var(--pad-x) 9rem;
     color: var(--noir);
   }
 
-  /* --- haut : quote alignée droite, byline sous le coin --- */
-  .about-top {
-    padding-left: 34%;
-    margin-bottom: 5.5rem;
-  }
-
-  .about-quote {
-    font-family: var(--font-display);
-    font-size: var(--type-quote);
-    font-weight: 500;
-    line-height: 1.02;
-    letter-spacing: var(--tracking-tight);
-    margin: 0 0 1.1rem;
-    max-width: 20ch;
-  }
-
-  .about-byline {
-    font-family: var(--font-body);
-    font-size: var(--type-caption);
-    opacity: 0.6;
-    margin: 0;
-    letter-spacing: 0.01em;
-  }
-
-  /* --- bas : grille 3 colonnes type double-page --- */
   .about-grid {
     display: grid;
-    grid-template-columns: 0.85fr 1.1fr 1.6fr;
-    column-gap: 3.5rem;
-    row-gap: 2rem;
+    grid-template-columns: minmax(8rem, 0.48fr) minmax(18rem, 0.95fr) minmax(30rem, 1.65fr);
+    column-gap: clamp(2.25rem, 4.3vw, 5.25rem);
+    row-gap: 3rem;
     align-items: start;
   }
 
-  /* col 1 : timeline sobre, typographique uniquement */
   .about-years {
-    padding-top: 0.35rem;
+    padding-top: 0.45rem;
   }
 
   .about-years dl {
     margin: 0;
     display: grid;
-    gap: 1.3rem;
+    gap: 1.45rem;
   }
 
   .about-year {
@@ -323,7 +350,7 @@ const timeline = [
 
   .about-year dt {
     font-family: var(--font-display);
-    font-size: var(--type-caption);
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.02em;
   }
@@ -331,13 +358,12 @@ const timeline = [
   .about-year dd {
     margin: 0;
     font-family: var(--font-body);
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.4;
     opacity: 0.65;
-    max-width: 18ch;
+    max-width: 20ch;
   }
 
-  /* col 2 : image + caption fine */
   .about-media {
     margin: 0;
   }
@@ -346,6 +372,14 @@ const timeline = [
     width: 100%;
     aspect-ratio: 4 / 5;
     background: var(--bleu);
+    overflow: hidden;
+  }
+
+  .about-img img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
   }
 
   .about-media figcaption {
@@ -356,14 +390,43 @@ const timeline = [
     letter-spacing: 0.03em;
   }
 
-  /* col 3 : texte resserré */
+  .about-copy {
+    padding-top: 0.15rem;
+    justify-self: end;
+    width: 100%;
+  }
+
+  .about-quote {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.15vw, 4rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 1rem;
+    max-width: 100%;
+  }
+
+  .about-byline {
+    font-family: var(--font-body);
+    font-size: var(--type-caption);
+    line-height: 1.35;
+    margin: 0 0 3.2rem;
+    letter-spacing: 0.01em;
+    opacity: 0.68;
+    white-space: nowrap;
+  }
+
+  .about-byline span {
+    opacity: 0.78;
+  }
+
   .about-body {
     display: grid;
     gap: 1rem;
     font-family: var(--font-body);
-    font-size: 13.25px;
+    font-size: 13.5px;
     line-height: 1.6;
-    max-width: 34rem;
+    max-width: 100%;
   }
 
   .about-body p {
@@ -390,27 +453,41 @@ const timeline = [
     }
 
     .composition {
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.75rem 1rem;
+      min-height: 0;
+      padding-top: 4rem;
     }
-    .block {
-      grid-column: auto !important;
-      grid-row: auto !important;
-    }
-    .block--graphique,
-    .block--whiteout,
-    .block--perspective { grid-column: span 6 !important; }
-    .block--workshop,
-    .block--croquis,
-    .block--typo,
-    .block--mv1,
-    .block--mv2 { grid-column: span 3 !important; }
-    .block .placeholder { aspect-ratio: 1; }
 
-    .about-top { padding-left: 0; }
+    .project-card {
+      position: static;
+      width: 100%;
+    }
+
+    .project-card--graphique,
+    .project-card--whiteout,
+    .project-card--packaging {
+      grid-column: span 2;
+      width: min(100%, 28rem);
+    }
+
+    .project-card--whiteout,
+    .project-card--packaging {
+      justify-self: end;
+    }
+
+    .project-caption {
+      font-size: 1.1rem;
+    }
+
     .about-grid {
       grid-template-columns: 1fr;
       gap: 3rem;
+    }
+
+    .about-quote {
+      max-width: 18ch;
     }
   }
 </style>
