@@ -2,13 +2,13 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const featuredProjects = [
-  { id: "graphique", label: "design graphique", num: "01", image: "", href: "/work/design-graphique" },
-  { id: "workshop", label: "workshop", num: "06", image: "", href: "/work/workshops" },
-  { id: "croquis", label: "croquis d'extérieur", num: "03", image: "", href: "/work/croquis-d-exterieur" },
+  { id: "graphique", label: "Design Graphique", num: "01", image: "", href: "/work/design-graphique" },
+  { id: "workshop", label: "Workshops", num: "06", image: "", href: "/work/workshops" },
+  { id: "croquis", label: "Croquis d'extérieur", num: "03", image: "", href: "/work/croquis-d-exterieur" },
   { id: "whiteout", label: "WHITEOUT", num: "07", image: "", href: "/work/projet-de-fin-d-annee" },
-  { id: "typo", label: "typo & mise en page", num: "04", image: "", href: "/work/typographie-et-mise-en-page" },
-  { id: "modele", label: "modèle vivant", num: "02", image: "", href: "/work/modele-vivant" },
-  { id: "packaging", label: "packaging", num: "05", image: "", href: "/work/packaging" },
+  { id: "typo", label: "Typographie & Mise en page", num: "04", image: "", href: "/work/typographie-et-mise-en-page" },
+  { id: "modele", label: "Modèle Vivant", num: "02", image: "", href: "/work/modele-vivant" },
+  { id: "packaging", label: "Packaging", num: "05", image: "", href: "/work/packaging" },
 ];
 
 const portraitImage = "";
@@ -50,13 +50,115 @@ const timeline = [
             </div>
             <figcaption class="project-caption">
               <span>{p.label}</span>
-              <sup>{p.num}</sup>
             </figcaption>
           </a>
         </figure>
       ))
     }
   </section>
+
+  <script>
+    (() => {
+      const composition = document.querySelector(".composition");
+      if (!composition) return;
+
+      const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!canHover || reduced) return;
+
+      const cards = Array.from(composition.querySelectorAll(".project-card"));
+      const cardDepths = new WeakMap();
+      const hoverDepth = 14.85;
+      let targetX = 0;
+      let targetY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      let rafId = 0;
+      let isVisible = false;
+      let hoveredCard = null;
+
+      const applyMovement = () => {
+        currentX += (targetX - currentX) * 0.06;
+        currentY += (targetY - currentY) * 0.06;
+
+        cards.forEach((card) => {
+          const baseDepth = Number(card.dataset.depth || "0");
+          const targetDepth = hoveredCard ? (card === hoveredCard ? hoverDepth : 0) : baseDepth;
+          const currentDepth = cardDepths.get(card) ?? targetDepth;
+          const nextDepth = currentDepth + (targetDepth - currentDepth) * 0.12;
+
+          cardDepths.set(card, nextDepth);
+          card.style.setProperty("--parallax-x", `${currentX * nextDepth}px`);
+          card.style.setProperty("--parallax-y", `${currentY * nextDepth}px`);
+        });
+
+        if (isVisible || Math.abs(currentX) > 0.01 || Math.abs(currentY) > 0.01) {
+          rafId = requestAnimationFrame(applyMovement);
+        } else {
+          rafId = 0;
+        }
+      };
+
+      const updateDepths = () => {
+        const widths = cards.map((card) => card.getBoundingClientRect().width);
+        const min = Math.min(...widths);
+        const max = Math.max(...widths);
+        const range = Math.max(max - min, 1);
+
+        cards.forEach((card) => {
+          const width = card.getBoundingClientRect().width;
+          const normalized = (width - min) / range;
+          const depth = 1.5 + normalized * 5.5;
+
+          card.dataset.depth = String(depth);
+          if (!cardDepths.has(card)) cardDepths.set(card, depth);
+        });
+      };
+
+      const startLoop = () => {
+        if (!rafId) rafId = requestAnimationFrame(applyMovement);
+      };
+
+      const updateVisibility = () => {
+        const rect = composition.getBoundingClientRect();
+        isVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+        if (!isVisible) {
+          targetX = 0;
+          targetY = 0;
+        }
+        startLoop();
+      };
+
+      updateDepths();
+      window.addEventListener("resize", updateDepths, { passive: true });
+      window.addEventListener("scroll", updateVisibility, { passive: true });
+
+      cards.forEach((card) => {
+        card.addEventListener("mouseenter", () => {
+          hoveredCard = card;
+          startLoop();
+        });
+
+        card.addEventListener("mouseleave", () => {
+          if (hoveredCard === card) hoveredCard = null;
+          startLoop();
+        });
+      });
+
+      window.addEventListener(
+        "mousemove",
+        (event) => {
+          if (!isVisible) return;
+          targetX = (event.clientX / window.innerWidth - 0.5) * 2;
+          targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+          startLoop();
+        },
+        { passive: true }
+      );
+
+      updateVisibility();
+    })();
+  </script>
 
   <!-- ===================== ABOUT / PRESENTATION ===================== -->
   <section class="about">
@@ -204,10 +306,10 @@ const timeline = [
     width: var(--card-size);
     margin: 0;
     transform-origin: center center;
+    transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
     transition:
       filter 0.45s ease,
-      opacity 0.45s ease,
-      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.45s ease;
     will-change: filter, opacity, transform;
   }
 
@@ -216,16 +318,25 @@ const timeline = [
     display: block;
     text-decoration: none;
     width: 100%;
+    transform-origin: center center;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
   }
 
   .composition:has(.project-card:hover) .project-card:not(:hover) {
     filter: blur(7px);
     opacity: 0.46;
+  }
+
+  .composition:has(.project-card:hover) .project-card:not(:hover) .project-card-link {
     transform: scale(0.985);
   }
 
   .composition:has(.project-card:hover) .project-card:hover {
     z-index: 8;
+  }
+
+  .composition:has(.project-card:hover) .project-card:hover .project-card-link {
     transform: scale(1.075);
   }
 
@@ -258,19 +369,6 @@ const timeline = [
 
   .project-caption span {
     display: inline;
-  }
-
-  .project-caption sup {
-    font-family: var(--font-body);
-    font-size: 0.42em;
-    font-weight: 500;
-    line-height: 0;
-    letter-spacing: 0.04em;
-    margin-left: 0.22em;
-    position: relative;
-    top: -0.62em;
-    vertical-align: super;
-    opacity: 0.65;
   }
 
   /* Tous les blocs gardent le même ratio. Seules la taille et la
