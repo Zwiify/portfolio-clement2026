@@ -1,6 +1,6 @@
 ---
 const { pathname } = Astro.url;
-const isWork = pathname.startsWith("/work");
+const isWork = pathname === "/work" || pathname === "/work/";
 ---
 
 <header class="site-header">

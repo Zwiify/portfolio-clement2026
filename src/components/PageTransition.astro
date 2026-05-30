@@ -8,8 +8,20 @@
     const overlay = document.getElementById("page-transition");
     const count = document.getElementById("page-transition-count");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealEvent = "cj:page-transition-revealed";
 
     if (!overlay || !count) return;
+
+    try {
+      window.__cjPageTransitionReady = sessionStorage.getItem(storageKey) !== "1";
+    } catch (_) {
+      window.__cjPageTransitionReady = true;
+    }
+
+    const markPageRevealed = () => {
+      window.__cjPageTransitionReady = true;
+      window.dispatchEvent(new CustomEvent(revealEvent));
+    };
 
     const format = (value) => String(Math.max(0, Math.min(100, Math.round(value)))).padStart(2, "0");
 
@@ -59,7 +71,12 @@
         shouldReveal = false;
       }
 
-      if (!shouldReveal) return;
+      if (!shouldReveal) {
+        markPageRevealed();
+        return;
+      }
+
+      window.__cjPageTransitionReady = false;
 
       overlay.classList.add("is-covering");
 
@@ -67,7 +84,10 @@
       document.documentElement.classList.remove("has-page-transition-enter");
       overlay.classList.add("is-exiting");
 
-      window.setTimeout(resetOverlay, reduced ? 0 : 850);
+      window.setTimeout(markPageRevealed, reduced ? 0 : 560);
+      window.setTimeout(() => {
+        resetOverlay();
+      }, reduced ? 0 : 850);
     };
 
     const isTransitionableLink = (link, event) => {

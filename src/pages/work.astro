@@ -2,17 +2,17 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const projects = [
-  { slug: "projet-de-fin-d-annee",        title: "Projet de fin d'année",       year: "2026" },
-  { slug: "design-graphique",             title: "Design Graphique",            year: "2026" },
-  { slug: "dessin-d-intention",           title: "Dessin d'intention",          year: "2026" },
-  { slug: "typographie-et-mise-en-page",  title: "Typographie & Mise en page",  year: "2026" },
-  { slug: "packaging",                    title: "Packaging",                   year: "2026" },
-  { slug: "perspective",                  title: "Perspective",                 year: "2026" },
-  { slug: "modele-vivant",                title: "Modèle vivant",               year: "2026" },
-  { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur",         year: "2026" },
-  { slug: "workshops",                    title: "Workshops",                   year: "2026" },
-  { slug: "dessin-d-analyse",             title: "Dessin d'analyse",            year: "2026" },
-  { slug: "personnel",                    title: "Personnel",                   year: "—" },
+  { slug: "projet-de-fin-d-annee",        title: "Projet de fin d'année" },
+  { slug: "design-graphique",             title: "Design Graphique" },
+  { slug: "dessin-d-intention",           title: "Dessin d'intention" },
+  { slug: "typographie-et-mise-en-page",  title: "Typographie & Mise en page" },
+  { slug: "packaging",                    title: "Packaging" },
+  { slug: "perspective",                  title: "Perspective" },
+  { slug: "modele-vivant",                title: "Modèle vivant" },
+  { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur" },
+  { slug: "workshops",                    title: "Workshops" },
+  { slug: "dessin-d-analyse",             title: "Dessin d'analyse" },
+  { slug: "personnel",                    title: "Personnel" },
 ];
 ---
 
@@ -32,7 +32,6 @@ const projects = [
                 class="project-link interactive-zone"
               >
                 <span class="project-title" data-scramble-text="">{p.title}</span>
-                <span class="project-year">{p.year}</span>
               </a>
               <div class="project-preview" aria-hidden="true" />
             </li>

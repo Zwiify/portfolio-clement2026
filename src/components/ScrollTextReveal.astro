@@ -1,0 +1,198 @@
+---
+/**
+ * ScrollTextReveal
+ *
+ * SplitType découpe les textes en lignes réelles, GSAP anime ensuite
+ * chaque ligne depuis le bas. Le ciblage reste volontairement précis
+ * pour éviter les bugs sur les micro-textes et les liens.
+ */
+---
+
+<script>
+  import gsap from "gsap";
+  import SplitType from "split-type";
+
+  (() => {
+    if (typeof window.__scrollTextRevealCleanup === "function") {
+      window.__scrollTextRevealCleanup();
+    }
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const scrollSelectors = [
+      "main .about-years dt",
+      "main .about-years dd",
+      "main .about-quote",
+      "main .about-byline",
+      "main .about-body p",
+      "main .project-section-copy h2",
+      "main .project-section-text p",
+      "footer .contact-sub",
+    ];
+
+    const instantSelectors = [
+      "main .work .project-link .project-title",
+    ];
+
+    const getElements = (selectors) =>
+      Array.from(document.querySelectorAll(selectors.join(","))).filter((element) => {
+        if (!(element instanceof HTMLElement)) return false;
+        if (element.closest(".site-header")) return false;
+        if (element.closest("#page-transition")) return false;
+
+        const text = (element.textContent || "").trim();
+        return text.length > 0 && text !== "—";
+      });
+
+    const scrollElements = getElements(scrollSelectors);
+    const instantElements = getElements(instantSelectors);
+    const elements = Array.from(new Set([...scrollElements, ...instantElements]));
+    const splitInstances = new Map();
+    const timelines = new Map();
+    let observer = null;
+    let resizeTimer = 0;
+    let pendingPageReveal = null;
+
+    const getLines = (element) => Array.from(element.querySelectorAll(".text-reveal-line"));
+
+    const getWords = (line) => Array.from(line.querySelectorAll(".text-reveal-word"));
+
+    const prepareElement = (element) => {
+      if (splitInstances.has(element)) return;
+
+      element.classList.add("text-reveal");
+
+      const split = new SplitType(element, {
+        types: "lines, words",
+        tagName: "span",
+        lineClass: "text-reveal-line",
+        wordClass: "text-reveal-word",
+      });
+
+      splitInstances.set(element, split);
+
+      getLines(element).forEach((line) => {
+        const words = getWords(line);
+        gsap.set(words.length ? words : line, {
+          yPercent: 115,
+          autoAlpha: 0,
+        });
+      });
+    };
+
+    const revealElement = (element) => {
+      if (element.classList.contains("text-reveal-visible")) return;
+
+      const lines = getLines(element);
+      const delay = Number.parseFloat(element.style.getPropertyValue("--text-reveal-delay") || "0");
+      element.classList.add("text-reveal-visible");
+
+      const timeline = gsap.timeline({
+        delay,
+        defaults: {
+          duration: 0.85,
+          ease: "power4.out",
+        },
+      });
+
+      lines.forEach((line, lineIndex) => {
+        const words = getWords(line);
+        timeline.to(
+          words.length ? words : line,
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            stagger: 0,
+          },
+          lineIndex * 0.075
+        );
+      });
+
+      timelines.set(element, timeline);
+    };
+
+    const waitForPageReveal = (callback) => {
+      if (pendingPageReveal) {
+        window.removeEventListener("cj:page-transition-revealed", pendingPageReveal);
+        pendingPageReveal = null;
+      }
+
+      if (window.__cjPageTransitionReady !== false) {
+        callback();
+        return;
+      }
+
+      pendingPageReveal = () => {
+        pendingPageReveal = null;
+        callback();
+      };
+
+      window.addEventListener("cj:page-transition-revealed", pendingPageReveal, { once: true });
+    };
+
+    const setup = () => {
+      if (observer) observer.disconnect();
+      timelines.forEach((timeline) => timeline.kill());
+      timelines.clear();
+
+      splitInstances.forEach((split) => split.revert());
+      splitInstances.clear();
+
+      if (reduced || !("IntersectionObserver" in window)) {
+        elements.forEach((element) => element.classList.add("text-reveal-visible"));
+        return;
+      }
+
+      elements.forEach((element) => {
+        element.classList.remove("text-reveal", "text-reveal-visible");
+        element.style.removeProperty("--text-reveal-delay");
+      });
+
+      elements.forEach(prepareElement);
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+
+            revealElement(entry.target);
+            observer.unobserve(entry.target);
+          });
+        },
+        {
+          root: null,
+          threshold: 0.12,
+          rootMargin: "0px 0px -8% 0px",
+        }
+      );
+
+      waitForPageReveal(() => {
+        scrollElements.forEach((element) => observer.observe(element));
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            instantElements.forEach(revealElement);
+          });
+        });
+      });
+    };
+
+    const handleResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setup, 180);
+    };
+
+    setup();
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    window.__scrollTextRevealCleanup = () => {
+      window.removeEventListener("resize", handleResize);
+      if (pendingPageReveal) window.removeEventListener("cj:page-transition-revealed", pendingPageReveal);
+      window.clearTimeout(resizeTimer);
+      if (observer) observer.disconnect();
+      timelines.forEach((timeline) => timeline.kill());
+      timelines.clear();
+      splitInstances.forEach((split) => split.revert());
+      splitInstances.clear();
+    };
+  })();
+</script>
