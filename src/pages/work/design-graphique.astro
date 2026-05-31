@@ -1,28 +1,15 @@
 ---
-/**
- * Page projet : Design Graphique
- * ------------------------------------------------------------
- * Première page projet du site, sert de référence pour toutes
- * les autres matières. La structure est pilotée entièrement par
- * le frontmatter → pour créer une nouvelle page projet, dupliquer
- * ce fichier, changer le nom de fichier (slug) et modifier les
- * données ci-dessous. Aucun CSS à écrire.
- *
- * Chemin de fer appliqué :
- *   1. Titre (système d'alignement haut existant)
- *   2. Grande image d'arrivée
- *   3. Blocs de projets répétables :
- *      titre à gauche, texte à droite, images en grille par paire
- *   4. Footer (ContactBlock via BaseLayout)
- * ------------------------------------------------------------
- */
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { matterSections } from "../../data/matterPageTemplate";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("design-graphique");
 ---
 
 <ProjectLayout
-  title="Design Graphique"
-  heroTone="bleu"
-  projectSections={matterSections["design-graphique"]}
-  description="Travaux de design graphique — affiches, identités et compositions éditoriales. Clément Jorge, 2025."
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
 />

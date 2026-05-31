@@ -1,11 +1,15 @@
 ---
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { matterSections } from "../../data/matterPageTemplate";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("modele-vivant");
 ---
 
 <ProjectLayout
-  title="Modèle vivant"
-  heroTone="bleu"
-  projectSections={matterSections["modele-vivant"]}
-  description="Travaux de modèle vivant — Clément Jorge, 2026."
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
 />

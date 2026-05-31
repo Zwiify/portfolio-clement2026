@@ -1,11 +1,15 @@
 ---
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { matterSections } from "../../data/matterPageTemplate";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("dessin-d-intention");
 ---
 
 <ProjectLayout
-  title="Dessin d'intention"
-  heroTone="bleu"
-  projectSections={matterSections["dessin-d-intention"]}
-  description="Travaux de dessin d'intention — Clément Jorge, 2026."
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
 />

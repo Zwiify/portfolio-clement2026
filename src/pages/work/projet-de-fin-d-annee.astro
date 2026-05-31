@@ -1,11 +1,15 @@
 ---
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { matterSections } from "../../data/matterPageTemplate";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("projet-de-fin-d-annee");
 ---
 
 <ProjectLayout
-  title="Projet de fin d'année"
-  heroTone="bleu"
-  projectSections={matterSections["projet-de-fin-d-annee"]}
-  description="Travaux de projet de fin d'année — Clément Jorge, 2026."
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
 />

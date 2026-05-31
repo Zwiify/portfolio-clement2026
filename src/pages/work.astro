@@ -1,19 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const projects = [
-  { slug: "projet-de-fin-d-annee",        title: "Projet de fin d'année" },
-  { slug: "design-graphique",             title: "Design Graphique" },
-  { slug: "dessin-d-intention",           title: "Dessin d'intention" },
-  { slug: "typographie-et-mise-en-page",  title: "Typographie & Mise en page" },
-  { slug: "packaging",                    title: "Packaging" },
-  { slug: "perspective",                  title: "Perspective" },
-  { slug: "modele-vivant",                title: "Modèle vivant" },
-  { slug: "croquis-d-exterieur",          title: "Croquis d'extérieur" },
-  { slug: "workshops",                    title: "Workshops" },
-  { slug: "dessin-d-analyse",             title: "Dessin d'analyse" },
-  { slug: "personnel",                    title: "Personnel" },
-];
+import { workIndex } from "../data/work";
 ---
 
 <BaseLayout title="Works — Clément Jorge">
@@ -25,7 +12,7 @@ const projects = [
     <div class="work-list-wrap">
       <ul class="projects">
         {
-          projects.map((p) => (
+          workIndex.map((p) => (
             <li class="project">
               <a
                 href={`/work/${p.slug}`}

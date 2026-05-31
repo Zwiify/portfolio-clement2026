@@ -1,11 +1,15 @@
 ---
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { matterSections } from "../../data/matterPageTemplate";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("perspective");
 ---
 
 <ProjectLayout
-  title="Perspective"
-  heroTone="bleu"
-  projectSections={matterSections.perspective}
-  description="Travaux de perspective — Clément Jorge, 2026."
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
 />

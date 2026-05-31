@@ -1,11 +1,15 @@
 ---
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { matterSections } from "../../data/matterPageTemplate";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("croquis-d-exterieur");
 ---
 
 <ProjectLayout
-  title="Croquis d'extérieur"
-  heroTone="bleu"
-  projectSections={matterSections["croquis-d-exterieur"]}
-  description="Travaux de croquis d'extérieur — Clément Jorge, 2026."
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
 />

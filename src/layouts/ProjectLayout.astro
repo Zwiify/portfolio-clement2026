@@ -22,33 +22,8 @@
  * ------------------------------------------------------------
  */
 import BaseLayout from "./BaseLayout.astro";
-
-export interface GalleryItem {
-  /** Légende optionnelle sous le bloc image. */
-  caption?: string;
-  /**
-   * Largeur du bloc dans la grille 2 colonnes.
-   * - "half"  : 1 colonne (défaut)
-   * - "full"  : pleine largeur (2 colonnes)
-   */
-  span?: "half" | "full";
-  /**
-   * Ratio d'aspect du bloc image.
-   * Par défaut : 4/5 pour les half, 16/9 pour les full.
-   */
-  ratio?: string;
-  /** Couleur de fond du placeholder (var CSS). Défaut : --bleu. */
-  tone?: "bleu" | "sauge" | "beige" | "orange" | "noir";
-}
-
-export interface ProjectSection {
-  /** Nom du projet affiché à gauche du bloc. */
-  title: string;
-  /** Description du projet affichée à droite, un ou plusieurs paragraphes. */
-  description?: string | string[];
-  /** Images du projet. La grille fonctionne par paire. */
-  images?: GalleryItem[];
-}
+import MediaBlock from "../components/MediaBlock.astro";
+import type { GalleryItem, ImageAsset, PlaceholderTone, ProjectSection } from "../data/types";
 
 export interface Props {
   /** Titre du projet — affiché en gros à la place de "Works". */
@@ -61,10 +36,12 @@ export interface Props {
   intro?: string | string[];
   /** Légende sous l'image principale. */
   heroCaption?: string;
+  /** Image principale. Laisse `src` vide pour conserver le placeholder bleu. */
+  heroImage?: ImageAsset;
   /** Ratio indicatif de l'image principale. Sa hauteur est plafonnée côté CSS. */
   heroRatio?: string;
   /** Ton du placeholder principal. Défaut : bleu. */
-  heroTone?: "bleu" | "sauge" | "beige" | "orange" | "noir";
+  heroTone?: PlaceholderTone;
   /** Galerie d'images du projet. */
   gallery?: GalleryItem[];
   /** Blocs de projets à afficher après l'image d'arrivée. */
@@ -81,6 +58,7 @@ const {
   category,
   intro,
   heroCaption,
+  heroImage,
   heroRatio = "21 / 9",
   heroTone = "bleu",
   gallery = [],
@@ -121,7 +99,9 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
          HERO IMAGE — image dominante, largeur 100 % de la colonne
          ============================================================ -->
     <figure class={`project-hero tone-${heroTone}`}>
-      <div class="project-hero-media" style={`aspect-ratio: ${heroRatio};`}></div>
+      <div class="project-hero-media" style={`aspect-ratio: ${heroRatio};`}>
+        <MediaBlock src={heroImage?.src} alt={heroImage?.alt ?? title} loading="eager" />
+      </div>
       {heroCaption && <figcaption>{heroCaption}</figcaption>}
     </figure>
 
@@ -153,7 +133,9 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
                       <div
                         class="gallery-media"
                         style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
-                      ></div>
+                      >
+                        <MediaBlock src={item.src} alt={item.alt ?? item.caption ?? ""} />
+                      </div>
                       {item.caption && <figcaption>{item.caption}</figcaption>}
                     </figure>
                   ))}
@@ -256,6 +238,7 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     width: 100%;
     height: clamp(38rem, 88vh, 62rem);
     background: var(--bleu);
+    overflow: hidden;
   }
 
   .project-hero figcaption {
@@ -345,6 +328,7 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
   .gallery-media {
     width: 100%;
     background: var(--bleu);
+    overflow: hidden;
   }
 
   .gallery-item figcaption {

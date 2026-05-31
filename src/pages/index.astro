@@ -1,36 +1,22 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const featuredProjects = [
-  { id: "graphique", label: "Design Graphique", num: "01", image: "", href: "/work/design-graphique" },
-  { id: "workshop", label: "Workshops", num: "06", image: "", href: "/work/workshops" },
-  { id: "croquis", label: "Croquis d'extérieur", num: "03", image: "", href: "/work/croquis-d-exterieur" },
-  { id: "whiteout", label: "WHITEOUT", num: "07", image: "", href: "/work/projet-de-fin-d-annee" },
-  { id: "typo", label: "Typographie & Mise en page", num: "04", image: "", href: "/work/typographie-et-mise-en-page" },
-  { id: "modele", label: "Modèle Vivant", num: "02", image: "", href: "/work/modele-vivant" },
-  { id: "packaging", label: "Packaging", num: "05", image: "", href: "/work/packaging" },
-];
-
-const portraitImage = "";
-
-const timeline = [
-  { year: "2025 — 2026", desc: "B1 Design Graphique" },
-  { year: "2023 — 2025", desc: "STAPS" },
-  { year: "2021 — 2022", desc: "Ostéopathie" },
-];
+import MediaBlock from "../components/MediaBlock.astro";
+import { aboutContent, featuredProjects, heroContent } from "../data/home";
 ---
 
 <BaseLayout title="Clément Jorge — design graphique">
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="about">
     <h1 class="hero-title">
-      <span class="hero-name">Clément Jorge</span>
+      <span class="hero-name">{heroContent.name}</span>
       <span class="hero-dash" aria-hidden="true">&mdash;</span>
-      <span class="hero-discipline">design<br /><span class="hero-graphique">graphique</span></span>
+      <span class="hero-discipline">
+        {heroContent.disciplineTop}<br /><span class="hero-graphique">{heroContent.disciplineBottom}</span>
+      </span>
     </h1>
 
     <p class="hero-intro">
-      Actuellement étudiant en design graphique,<br />
+      {heroContent.intro}<br />
       <br />
     </p>
   </section>
@@ -46,7 +32,7 @@ const timeline = [
             aria-label={`Voir ${p.label}`}
           >
             <div class="project-image">
-              {p.image && <img src={p.image} alt="" loading="lazy" />}
+              <MediaBlock src={p.image.src} alt={p.image.alt} />
             </div>
             <figcaption class="project-caption">
               <span>{p.label}</span>
@@ -166,7 +152,7 @@ const timeline = [
       <aside class="about-years" aria-label="Parcours">
         <dl>
           {
-            timeline.map((t) => (
+            aboutContent.timeline.map((t) => (
               <div class="about-year">
                 <dt>{t.year}</dt>
                 <dd>{t.desc}</dd>
@@ -178,34 +164,22 @@ const timeline = [
 
       <figure class="about-media">
         <div class="about-img">
-          {portraitImage && <img src={portraitImage} alt="Portrait de Clément Jorge" loading="lazy" />}
+          <MediaBlock src={aboutContent.portrait.src} alt={aboutContent.portrait.alt} />
         </div>
         <figcaption></figcaption>
       </figure>
 
       <div class="about-copy">
         <blockquote class="about-quote">
-          Clément Jorge
+          {aboutContent.heading}
         </blockquote>
 
         <p class="about-byline">
-          Design graphique <span>— édition — typographie — 3D — web</span>
+          {aboutContent.byline}
         </p>
 
         <div class="about-body">
-          <p>
-            Hello, je suis étudiant en design graphique, avec un intérêt particulier
-            pour l'édition, la typographie, l'image et la 3D. J'aime construire
-            des compositions claires, créer des univers visuels et chercher le
-            bon équilibre entre rigueur graphique et intuition.
-          </p>
-          <p>
-            Mon travail passe par des supports assez variés : affiches, livres,
-            packaging, dessin, web, modélisation 3D, mais aussi des projets plus
-            personnels autour du jeu vidéo ou du sound design. J'essaie d'y
-            garder la même attention : créer des formes justes, sensibles, et
-            suffisamment fortes pour donner envie de s'y arrêter.
-          </p>
+          {aboutContent.body.map((paragraph) => <p>{paragraph}</p>)}
         </div>
       </div>
     </div>
@@ -348,13 +322,6 @@ const timeline = [
     overflow: hidden;
   }
 
-  .project-image img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-  }
-
   .project-caption {
     font-family: var(--font-body);
     font-size: clamp(1rem, 1.2vw, 1.55rem);
@@ -474,13 +441,6 @@ const timeline = [
     overflow: hidden;
   }
 
-  .about-img img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-  }
-
   .about-media figcaption {
     font-family: var(--font-body);
     font-size: 10.5px;
@@ -513,10 +473,6 @@ const timeline = [
     letter-spacing: 0.01em;
     opacity: 0.68;
     white-space: nowrap;
-  }
-
-  .about-byline span {
-    opacity: 1;
   }
 
   .about-body {
