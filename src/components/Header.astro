@@ -1,0 +1,66 @@
+---
+const { pathname } = Astro.url;
+const isWork = pathname === "/work" || pathname === "/work/";
+---
+
+<header class="site-header">
+  <nav aria-label="Navigation principale">
+    <a href="/#about" class="interactive-zone">
+      <span data-scramble-text="">About</span>
+    </a>
+    <a
+      href="/work"
+      class:list={["interactive-zone", { active: isWork }]}
+    >
+      <span data-scramble-text="">Work</span>
+    </a>
+    <a href="#contact" class="interactive-zone">
+      <span data-scramble-text="">Contact</span>
+    </a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    /* La nav partage la MÊME ligne haute de composition que les
+       gros titres de page (hero home, /work, pages projet). Côté
+       titres, cette ligne correspond au top de la box du h1, soit
+       --page-top-line + --title-top-offset. Côté nav, on place le
+       top de la box du header sur exactement la même valeur via
+       --nav-top-offset (= --title-top-offset). Le haut visible du
+       "A" de "ABOUT" et le haut visible du "C" de "Clément" / "W"
+       de "Works" / etc. tombent alors sur la même ligne, à tout
+       viewport, via le clamp de --type-display. */
+    top: calc(var(--page-top-line) + var(--nav-top-offset));
+    right: var(--pad-x);
+    z-index: 100;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.28rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav a {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin: 0;
+    padding: 0.08rem 0 0.08rem 0.7rem;
+    display: block;
+  }
+
+  /* Aucune variation d'opacité ici : l'interaction se fait via
+     l'underline de .interactive-text (hover) et la règle
+     .interactive-text.active (underline permanent sur la page courante).
+     Le lien actif reste à pleine opacité, juste souligné. */
+</style>

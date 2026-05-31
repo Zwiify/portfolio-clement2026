@@ -1,43 +1,68 @@
-# Astro Starter Kit: Minimal
+# Portfolio Clement Jorge
+
+Site portfolio Astro de Clement Jorge.
+
+## Lancer le site en local
 
 ```sh
-npm create astro@latest -- --template minimal
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Le site tourne ensuite sur `http://127.0.0.1:4321`.
 
-## 🚀 Project Structure
+## Modifier les contenus
 
-Inside of your Astro project, you'll see the following folders and files:
+Les pages `.astro` gardent surtout la structure. Les textes, projets et images sont centralises dans `src/data`.
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+├── components/
+│   ├── MediaBlock.astro          # affiche une image ou le placeholder bleu
+│   ├── Header.astro
+│   ├── ContactBlock.astro
+│   └── ...
+├── data/
+│   ├── home.ts                   # accueil, vignettes about, parcours, texte about
+│   ├── work.ts                   # liste Work + toutes les pages matieres/projets
+│   └── types.ts                  # types partages
+├── layouts/
+│   ├── BaseLayout.astro
+│   └── ProjectLayout.astro       # structure commune des pages /work/*
+└── pages/
+    ├── index.astro
+    ├── work.astro
+    └── work/*.astro              # routes, une page par matiere
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Modifier les images
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Les vraies images doivent aller dans `public/images`.
 
-Any static assets, like images, can be placed in the `public/` directory.
+```text
+public/images/
+├── home/                         # images des vignettes de l'accueil
+├── about/                        # portrait / image about
+└── work/
+    ├── design-graphique/
+    ├── packaging/
+    └── ...
+```
 
-## 🧞 Commands
+Dans le code, un fichier place dans `public/images/work/design-graphique/matrix-01.jpg` se reference comme ceci :
 
-All commands are run from the root of the project, from a terminal:
+```ts
+"/images/work/design-graphique/matrix-01.jpg"
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Si un champ `src` reste vide, le site garde automatiquement son bloc bleu placeholder.
 
-## 👀 Want to learn more?
+## Mettre a jour le site en ligne
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```sh
+git add .
+git commit -m "Update portfolio"
+git push origin HEAD:main
+```
+
+Netlify redeploie automatiquement apres le push sur `main`.

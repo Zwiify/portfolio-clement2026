@@ -1,0 +1,202 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { workIndex } from "../data/work";
+---
+
+<BaseLayout title="Works — Clément Jorge">
+  <section class="work">
+    <header class="work-header">
+      <h1 class="work-title">Works</h1>
+    </header>
+
+    <div class="work-list-wrap">
+      <ul class="projects">
+        {
+          workIndex.map((p) => (
+            <li class="project">
+              <a
+                href={`/work/${p.slug}`}
+                class="project-link interactive-zone"
+              >
+                <span class="project-title" data-scramble-text="">{p.title}</span>
+              </a>
+              <div class="project-preview" aria-hidden="true" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .work {
+    background: var(--sauge);
+    min-height: 100vh;
+    /* Même alignement top que la homepage : --page-top pour la nav,
+       + --title-top-offset pour compenser l'overflow line-height
+       du titre afin que "Works" s'aligne visuellement avec la nav. */
+    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 7rem;
+    color: var(--noir);
+  }
+
+  /* ==========================================================
+     Header : titre + petit sous-titre aligné baseline
+     ========================================================== */
+  .work-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 3rem;
+    /* Plus d'air entre le titre "Works" et la première ligne de la
+       liste : on descend le bloc liste sans bouger le titre. */
+    margin: 0 0 7rem;
+    padding-right: 6rem; /* réserve la place du header nav fixé */
+  }
+
+  /* Même système typographique que le hero de la homepage :
+     même taille (--type-display), même line-height tendu (0.76),
+     même weight et même tracking. */
+  .work-title {
+    font-family: var(--font-display);
+    font-size: var(--type-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-hero);
+    line-height: 0.76;
+    margin: 0;
+  }
+
+  .work-sub {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: 400;
+    line-height: 1.45;
+    text-align: right;
+    margin: 0;
+    opacity: 0.65;
+    /* Assez large pour que chaque phrase tienne sur une ligne :
+       la boîte du sous-titre doit rester plus petite que celle du
+       titre, sinon align-items: flex-end pousse le titre vers le bas
+       et casse l'alignement haut avec la nav. */
+    max-width: 36ch;
+  }
+
+  /* ==========================================================
+     Liste de projets — dense, Inter 300, éditoriale
+     ========================================================== */
+  .work-list-wrap {
+    position: relative;
+  }
+
+  .projects {
+    position: relative;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .project {
+    /* Chaque ligne devient l'ancre de SA preview : la preview est
+       positionnée absolue à l'intérieur de cette box, donc elle suit
+       naturellement la position verticale de la ligne survolée. */
+    position: relative;
+    border-bottom: 1px solid var(--hairline);
+    transition: opacity 0.3s ease;
+  }
+
+  .project-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 0.9rem 0 0.95rem;
+    /* Position relative + z-index supérieur : le titre et l'année
+       restent en couche au-DESSUS de la preview, donc lisibles même
+       quand la preview s'étend sous eux à droite. Aucun padding-right
+       ici : la grille flex est plein-largeur, l'année reste ancrée
+       au vrai bord droit de la ligne (= bord droit de la page). */
+    position: relative;
+    z-index: 2;
+  }
+
+  /* titres en Inter 300 : éditorial, léger, tracking négatif pour la tension */
+  .project-title {
+    font-family: var(--font-body);
+    font-size: var(--type-project);
+    font-weight: 300;
+    letter-spacing: -0.028em;
+    line-height: 0.95;
+    display: inline-block;
+  }
+
+  .project-year {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  /* ==========================================================
+     Preview ancrée À DROITE sur la ligne survolée
+     ----------------------------------------------------------
+     Point clé : .project est position:relative, donc ce "right: 0
+     top: 50%" est calculé par rapport à la BOX de la ligne, pas
+     par rapport à la liste entière. Chaque preview a donc sa
+     propre position verticale, qui suit le rythme de la liste.
+     La preview dépasse visuellement de la ligne (aspect 4/5 =
+     beaucoup plus haute que la ligne) mais son CENTRE OPTIQUE
+     reste calé sur la ligne survolée → relation claire entre
+     ligne et image, esprit éditorial Blackpizza.
+     ========================================================== */
+  .project-preview {
+    position: absolute;
+    /* right: 16% → la preview quitte le bord droit et mord vers le
+       centre de la page, tout en restant clairement dans la moitié
+       droite. Dialogue plus tendu avec la liste, esprit Blackpizza.
+       Les années restent ancrées au vrai bord droit car elles sont
+       dans .project-link (flow normal), indépendantes de cette couche. */
+    right: 16%;
+    top: 50%;
+    width: 34%;
+    max-width: 520px;
+    aspect-ratio: 4 / 5;
+    background: var(--bleu);
+    /* translateY(-50%) centre la preview sur la ligne.
+       translateY ajouté de 8px au départ pour une entrée discrète. */
+    transform: translateY(calc(-50% + 8px));
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.32s ease,
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Couche de FOND : la preview passe sous le texte de sa ligne
+       (.project-link est en z-index: 2) pour que titre et année
+       restent toujours lisibles, même quand la preview les recouvre
+       visuellement à droite. */
+    z-index: 1;
+  }
+
+  .project:hover .project-preview {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+
+  /* ==========================================================
+     Responsive basique
+     ========================================================== */
+  @media (max-width: 960px) {
+    .work-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      padding-right: 0;
+    }
+    .work-sub {
+      text-align: left;
+    }
+    .project-preview {
+      display: none;
+    }
+  }
+</style>

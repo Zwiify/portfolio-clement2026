@@ -1,61 +1,548 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MediaBlock from "../components/MediaBlock.astro";
+import { aboutContent, featuredProjects, heroContent } from "../data/home";
 ---
 
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clément Jorge — Portfolio</title>
-    <style>
-      :root {
-        font-family: Arial, Helvetica, sans-serif;
-        color: #111;
-        background: #f5f1ea;
-      }
+<BaseLayout title="Clément Jorge — design graphique">
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="about">
+    <h1 class="hero-title">
+      <span class="hero-name">{heroContent.name}</span>
+      <span class="hero-dash" aria-hidden="true">&mdash;</span>
+      <span class="hero-discipline">
+        {heroContent.disciplineTop}<br /><span class="hero-graphique">{heroContent.disciplineBottom}</span>
+      </span>
+    </h1>
 
-      * {
-        box-sizing: border-box;
-      }
+    <p class="hero-intro">
+      {heroContent.intro}<br />
+      <br />
+    </p>
+  </section>
 
-      body {
-        margin: 0;
-      }
+  <!-- ===================== COMPOSITION ===================== -->
+  <section class="composition" aria-label="Sélection de projets">
+    {
+      featuredProjects.map((p) => (
+        <figure class={`project-card project-card--${p.id}`}>
+          <a
+            href={p.href}
+            class="project-card-link interactive-zone cursor-cross-zone"
+            aria-label={`Voir ${p.label}`}
+          >
+            <div class="project-image">
+              <MediaBlock src={p.image.src} alt={p.image.alt} />
+            </div>
+            <figcaption class="project-caption">
+              <span>{p.label}</span>
+            </figcaption>
+          </a>
+        </figure>
+      ))
+    }
+  </section>
 
-      main {
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 2rem;
-      }
+  <script>
+    (() => {
+      const composition = document.querySelector(".composition");
+      if (!composition) return;
 
-      .intro {
-        max-width: 900px;
-        width: 100%;
-      }
+      const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!canHover || reduced) return;
 
-      h1 {
-        font-size: clamp(3rem, 8vw, 7rem);
-        line-height: 0.95;
-        margin: 0 0 1rem 0;
-        font-weight: 600;
-      }
+      const cards = Array.from(composition.querySelectorAll(".project-card"));
+      const cardDepths = new WeakMap();
+      const hoverDepth = 14.85;
+      let targetX = 0;
+      let targetY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      let rafId = 0;
+      let isVisible = false;
+      let hoveredCard = null;
 
-      p {
-        font-size: 1.1rem;
-        max-width: 36rem;
-        line-height: 1.6;
-        margin: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <section class="intro">
-        <h1>Clément Jorge</h1>
-        <p>
-          Portfolio en construction — design graphique, direction visuelle et projets créatifs.
+      const applyMovement = () => {
+        currentX += (targetX - currentX) * 0.06;
+        currentY += (targetY - currentY) * 0.06;
+
+        cards.forEach((card) => {
+          const baseDepth = Number(card.dataset.depth || "0");
+          const targetDepth = hoveredCard ? (card === hoveredCard ? hoverDepth : 0) : baseDepth;
+          const currentDepth = cardDepths.get(card) ?? targetDepth;
+          const nextDepth = currentDepth + (targetDepth - currentDepth) * 0.12;
+
+          cardDepths.set(card, nextDepth);
+          card.style.setProperty("--parallax-x", `${currentX * nextDepth}px`);
+          card.style.setProperty("--parallax-y", `${currentY * nextDepth}px`);
+        });
+
+        if (isVisible || Math.abs(currentX) > 0.01 || Math.abs(currentY) > 0.01) {
+          rafId = requestAnimationFrame(applyMovement);
+        } else {
+          rafId = 0;
+        }
+      };
+
+      const updateDepths = () => {
+        const widths = cards.map((card) => card.getBoundingClientRect().width);
+        const min = Math.min(...widths);
+        const max = Math.max(...widths);
+        const range = Math.max(max - min, 1);
+
+        cards.forEach((card) => {
+          const width = card.getBoundingClientRect().width;
+          const normalized = (width - min) / range;
+          const depth = 1.5 + normalized * 5.5;
+
+          card.dataset.depth = String(depth);
+          if (!cardDepths.has(card)) cardDepths.set(card, depth);
+        });
+      };
+
+      const startLoop = () => {
+        if (!rafId) rafId = requestAnimationFrame(applyMovement);
+      };
+
+      const updateVisibility = () => {
+        const rect = composition.getBoundingClientRect();
+        isVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+        if (!isVisible) {
+          targetX = 0;
+          targetY = 0;
+        }
+        startLoop();
+      };
+
+      updateDepths();
+      window.addEventListener("resize", updateDepths, { passive: true });
+      window.addEventListener("scroll", updateVisibility, { passive: true });
+
+      cards.forEach((card) => {
+        card.addEventListener("mouseenter", () => {
+          hoveredCard = card;
+          startLoop();
+        });
+
+        card.addEventListener("mouseleave", () => {
+          if (hoveredCard === card) hoveredCard = null;
+          startLoop();
+        });
+      });
+
+      window.addEventListener(
+        "mousemove",
+        (event) => {
+          if (!isVisible) return;
+          targetX = (event.clientX / window.innerWidth - 0.5) * 2;
+          targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+          startLoop();
+        },
+        { passive: true }
+      );
+
+      updateVisibility();
+    })();
+  </script>
+
+  <!-- ===================== ABOUT / PRESENTATION ===================== -->
+  <section class="about">
+    <div class="about-grid">
+      <aside class="about-years" aria-label="Parcours">
+        <dl>
+          {
+            aboutContent.timeline.map((t) => (
+              <div class="about-year">
+                <dt>{t.year}</dt>
+                <dd>{t.desc}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </aside>
+
+      <figure class="about-media">
+        <div class="about-img">
+          <MediaBlock src={aboutContent.portrait.src} alt={aboutContent.portrait.alt} />
+        </div>
+        <figcaption></figcaption>
+      </figure>
+
+      <div class="about-copy">
+        <blockquote class="about-quote">
+          {aboutContent.heading}
+        </blockquote>
+
+        <p class="about-byline">
+          {aboutContent.byline}
         </p>
-      </section>
-    </main>
-  </body>
-</html>
+
+        <div class="about-body">
+          {aboutContent.body.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ==========================================================
+     HERO — deux masses typographiques alignées par le HAUT.
+     "Clément Jorge —", "design" et la nav partagent tous la
+     même ligne haute de composition :
+       top visuel = --page-top
+     obtenue via padding-top = --page-top + --title-top-offset
+     (où --title-top-offset compense l'overflow line-height 0.76).
+     "graphique" (seconde ligne de la discipline) s'étend sous
+     cette ligne haute, créant la tension verticale du hero
+     sans rompre l'implantation supérieure.
+     ========================================================== */
+  .hero {
+    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 0;
+    position: relative;
+  }
+
+  .hero-title {
+    /* Flex à trois spans : name | dash | discipline. Le gap flex
+       s'applique automatiquement des DEUX côtés du tiret, donc
+       l'espace "Jorge ↔ —" est strictement égal à l'espace "— ↔ design"
+       par construction. Aucun &nbsp; parasite, aucune asymétrie. */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    /* Gap unique appliqué à chaque couture flex. Valeur ≈ une chasse
+       d'espace serrée à la taille display, qui rapproche visuellement
+       "design" du tiret sans coller. */
+    gap: 0.22em;
+    font-size: var(--type-display);
+    line-height: 0.76;
+    font-weight: 600;
+    letter-spacing: var(--tracking-hero);
+    /* La discipline fait 2 lignes, le name en fait 1 : le flex
+       prend la hauteur de la discipline, donc on ajoute assez
+       de marge basse pour laisser respirer l'intro sous le titre. */
+    margin: 0 0 2.25rem;
+  }
+
+  .hero-name {
+    color: var(--noir);
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .hero-dash {
+    /* Tiret isolé dans son propre span pour que les gaps flex
+       de part et d'autre soient strictement égaux. Hérite de la
+       couleur noire du h1 (pas d'override nécessaire). */
+    flex: 0 0 auto;
+  }
+
+  .hero-discipline {
+    color: var(--orange);
+    text-align: left;
+    flex: 0 0 auto;
+  }
+
+  /* Micro-ajustement optique : on descend uniquement le mot "graphique"
+     de quelques pixels pour rééquilibrer visuellement le bloc orange,
+     sans toucher à la taille, à la police, ni aux espacements. */
+  .hero-graphique {
+    display: inline-block;
+    transform: translateY(6px);
+  }
+
+  .hero-intro {
+    max-width: 26rem;
+    font-size: var(--type-body);
+    line-height: 1.55;
+    color: var(--noir);
+    /* Rattachement visuel au bloc noir "Clément Jorge —".
+       Le .hero-title est un flex dont la hauteur suit "design\ngraphique"
+       (2 lignes à line-height 0.76), donc son bord bas tombe très bas.
+       On remonte l'intro d'exactement 1 ligne display pour la caler
+       juste sous la première ligne du titre. L'intro est à gauche et
+       "graphique" est à droite → aucun risque de collision horizontale. */
+    margin: calc(var(--type-display) * -0.76 - 0.75rem) 0 0 0;
+  }
+
+  /* ==========================================================
+     COMPOSITION — chemin de fer maîtrisé
+     ========================================================== */
+  .composition {
+    position: relative;
+    min-height: clamp(58rem, 78vw, 92rem);
+    padding: 4.5rem var(--pad-x) 9rem;
+  }
+
+  .project-card {
+    position: absolute;
+    width: var(--card-size);
+    margin: 0;
+    transform-origin: center center;
+    transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
+    transition:
+      filter 0.45s ease,
+      opacity 0.45s ease;
+    will-change: filter, opacity, transform;
+  }
+
+  .project-card-link {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+    width: 100%;
+    transform-origin: center center;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .composition:has(.project-card:hover) .project-card:not(:hover) {
+    filter: blur(7px);
+    opacity: 0.46;
+  }
+
+  .composition:has(.project-card:hover) .project-card:not(:hover) .project-card-link {
+    transform: scale(0.985);
+  }
+
+  .composition:has(.project-card:hover) .project-card:hover {
+    z-index: 8;
+  }
+
+  .composition:has(.project-card:hover) .project-card:hover .project-card-link {
+    transform: scale(1.075);
+  }
+
+  .project-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--bleu);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-caption {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.2vw, 1.55rem);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--noir);
+    display: block;
+    margin-top: 0.45rem;
+    max-width: 100%;
+  }
+
+  .project-caption span {
+    display: inline;
+  }
+
+  /* Tous les blocs gardent le même ratio. Seules la taille et la
+     position changent pour garder une composition vivante, mais tenue. */
+  .project-card--graphique {
+    --card-size: clamp(18rem, 20vw, 26rem);
+    left: var(--pad-x);
+    top: 5.2rem;
+  }
+
+  .project-card--workshop {
+    --card-size: clamp(6.5rem, 7vw, 9rem);
+    left: 27.2%;
+    top: 6.9rem;
+  }
+
+  .project-card--croquis {
+    --card-size: clamp(8.5rem, 9.7vw, 12.5rem);
+    left: 20.4%;
+    top: 25.2rem;
+  }
+
+  .project-card--whiteout {
+    --card-size: clamp(18rem, 20.4vw, 26.5rem);
+    left: 46.2%;
+    top: 8.3rem;
+  }
+
+  .project-card--typo {
+    --card-size: clamp(15rem, 17.6vw, 23rem);
+    right: var(--pad-x);
+    top: 4.1rem;
+  }
+
+  .project-card--modele {
+    --card-size: clamp(8rem, 9vw, 11.5rem);
+    left: 42.7%;
+    top: 32.2rem;
+  }
+
+  .project-card--packaging {
+    --card-size: clamp(13.5rem, 15.6vw, 20rem);
+    left: 70.8%;
+    top: 30.2rem;
+  }
+
+  /* ==========================================================
+     ABOUT — présentation : CV / portrait / texte
+     ========================================================== */
+  .about {
+    background: var(--sauge);
+    padding: 8rem var(--pad-x) 9rem;
+    color: var(--noir);
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.48fr) minmax(18rem, 0.95fr) minmax(30rem, 1.65fr);
+    column-gap: clamp(2.25rem, 4.3vw, 5.25rem);
+    row-gap: 3rem;
+    align-items: start;
+  }
+
+  .about-years {
+    padding-top: 0.45rem;
+  }
+
+  .about-years dl {
+    margin: 0;
+    display: grid;
+    gap: 1.45rem;
+  }
+
+  .about-year {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .about-year dt {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .about-year dd {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.65;
+    max-width: 20ch;
+  }
+
+  .about-media {
+    margin: 0;
+  }
+
+  .about-img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background: var(--bleu);
+    overflow: hidden;
+  }
+
+  .about-media figcaption {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    opacity: 0.55;
+    margin-top: 0.55rem;
+    letter-spacing: 0.03em;
+  }
+
+  .about-copy {
+    padding-top: 0.15rem;
+    justify-self: end;
+    width: 100%;
+  }
+
+  .about-quote {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 2.75vw, 3.45rem);
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 1rem;
+    max-width: 100%;
+  }
+
+  .about-byline {
+    font-family: var(--font-body);
+    font-size: var(--type-caption);
+    line-height: 1.35;
+    margin: 0 0 3.2rem;
+    letter-spacing: 0.01em;
+    opacity: 0.68;
+    white-space: nowrap;
+  }
+
+  .about-body {
+    display: grid;
+    gap: 1rem;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+
+  .about-body p {
+    margin: 0;
+  }
+
+  /* ==========================================================
+     RESPONSIVE BASIQUE (sécurité, pas prioritaire)
+     ========================================================== */
+  @media (max-width: 960px) {
+    .hero-title {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .hero-name { white-space: normal; }
+    .hero-dash {
+      /* Tiret orphelin entre deux lignes empilées n'a plus de sens
+         typographique en layout column : on le cache sur mobile. */
+      display: none;
+    }
+    .hero-discipline {
+      align-self: flex-start;
+    }
+
+    .composition {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.75rem 1rem;
+      min-height: 0;
+      padding-top: 4rem;
+    }
+
+    .project-card {
+      position: static;
+      width: 100%;
+    }
+
+    .project-card--graphique,
+    .project-card--whiteout,
+    .project-card--packaging {
+      grid-column: span 2;
+      width: min(100%, 28rem);
+    }
+
+    .project-card--whiteout,
+    .project-card--packaging {
+      justify-self: end;
+    }
+
+    .project-caption {
+      font-size: 1.1rem;
+    }
+
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .about-quote {
+      max-width: 18ch;
+    }
+  }
+</style>

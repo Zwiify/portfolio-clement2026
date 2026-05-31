@@ -1,0 +1,38 @@
+---
+interface Props {
+  src?: string;
+  alt?: string;
+  loading?: "eager" | "lazy";
+}
+
+const {
+  src = "",
+  alt = "",
+  loading = "lazy",
+} = Astro.props;
+---
+
+{
+  src ? (
+    <img class="media-block-image" src={src} alt={alt} loading={loading} decoding="async" />
+  ) : (
+    <div class="media-placeholder" aria-hidden="true"></div>
+  )
+}
+
+<style>
+  .media-block-image,
+  .media-placeholder {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .media-block-image {
+    object-fit: cover;
+  }
+
+  .media-placeholder {
+    background: inherit;
+  }
+</style>

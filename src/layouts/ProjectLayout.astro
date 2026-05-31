@@ -1,0 +1,384 @@
+---
+/**
+ * ProjectLayout
+ * ------------------------------------------------------------
+ * Layout réutilisable pour toutes les pages de projet (/work/*).
+ *
+ * Objectifs :
+ * - Garantir la cohérence DA entre toutes les pages projet
+ *   (même alignement haut que /work et la homepage, même
+ *   système typographique, même fond, même rythme).
+ * - Centraliser la structure (titre, méta, hero image, blocs
+ *   de projets et galeries) pour que chaque nouvelle matière soit une simple
+ *   fiche de données, pas un travail de CSS.
+ *
+ * Pilotage d'une page projet : on passe les données en frontmatter
+ * (title, year, category, hero, projectSections) et la page affiche
+ * automatiquement la mise en page éditoriale.
+ *
+ * Pour des cas plus libres, un <slot /> "extra" est laissé en fin
+ * de layout (avant le footer) pour ajouter du contenu spécifique
+ * sans casser le template.
+ * ------------------------------------------------------------
+ */
+import BaseLayout from "./BaseLayout.astro";
+import MediaBlock from "../components/MediaBlock.astro";
+import type { GalleryItem, ImageAsset, PlaceholderTone, ProjectSection } from "../data/types";
+
+export interface Props {
+  /** Titre du projet — affiché en gros à la place de "Works". */
+  title: string;
+  /** Année(s) du projet, affiché en petit à droite du titre. */
+  year?: string;
+  /** Catégorie éditoriale (ex : "identité", "édition"). */
+  category?: string;
+  /** Intro du projet : une ou plusieurs paragraphes. */
+  intro?: string | string[];
+  /** Légende sous l'image principale. */
+  heroCaption?: string;
+  /** Image principale. Laisse `src` vide pour conserver le placeholder bleu. */
+  heroImage?: ImageAsset;
+  /** Ratio indicatif de l'image principale. Sa hauteur est plafonnée côté CSS. */
+  heroRatio?: string;
+  /** Ton du placeholder principal. Défaut : bleu. */
+  heroTone?: PlaceholderTone;
+  /** Galerie d'images du projet. */
+  gallery?: GalleryItem[];
+  /** Blocs de projets à afficher après l'image d'arrivée. */
+  projectSections?: ProjectSection[];
+  /** Titre HTML de l'onglet. Défaut : "<title> — Clément Jorge". */
+  pageTitle?: string;
+  /** Meta description SEO. */
+  description?: string;
+}
+
+const {
+  title,
+  year,
+  category,
+  intro,
+  heroCaption,
+  heroImage,
+  heroRatio = "21 / 9",
+  heroTone = "bleu",
+  gallery = [],
+  projectSections = [],
+  pageTitle,
+  description,
+} = Astro.props;
+
+const introParagraphs = Array.isArray(intro) ? intro : intro ? [intro] : [];
+const contentSections =
+  projectSections.length > 0
+    ? projectSections
+    : introParagraphs.length > 0 || gallery.length > 0
+      ? [{ title: "Projet", description: introParagraphs, images: gallery }]
+      : [];
+
+const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
+---
+
+<BaseLayout title={finalPageTitle} description={description}>
+  <article class="project">
+    <!-- ============================================================
+         HEADER — titre aligné sur la ligne haute partagée avec la nav
+         (même système que /work et le hero home).
+         ============================================================ -->
+    <header class="project-header">
+      <h1 class="project-title">{title}</h1>
+
+      {(year || category) && (
+        <div class="project-meta">
+          {category && <p class="project-category">{category}</p>}
+          {year && <p class="project-year">{year}</p>}
+        </div>
+      )}
+    </header>
+
+    <!-- ============================================================
+         HERO IMAGE — image dominante, largeur 100 % de la colonne
+         ============================================================ -->
+    <figure class={`project-hero tone-${heroTone}`}>
+      <div class="project-hero-media" style={`aspect-ratio: ${heroRatio};`}>
+        <MediaBlock src={heroImage?.src} alt={heroImage?.alt ?? title} loading="eager" />
+      </div>
+      {heroCaption && <figcaption>{heroCaption}</figcaption>}
+    </figure>
+
+    <!-- ============================================================
+         PROJECT SECTIONS — titre à gauche, texte à droite, images par paire
+         ============================================================ -->
+    {contentSections.length > 0 && (
+      <div class="project-sections">
+        {contentSections.map((section) => {
+          const paragraphs = Array.isArray(section.description)
+            ? section.description
+            : section.description
+              ? [section.description]
+              : [];
+
+          return (
+            <section class="project-section">
+              <div class="project-section-copy">
+                <h2>{section.title}</h2>
+                <div class="project-section-text">
+                  {paragraphs.map((p) => <p>{p}</p>)}
+                </div>
+              </div>
+
+              {(section.images?.length ?? 0) > 0 && (
+                <div class="project-section-gallery" aria-label={`Images - ${section.title}`}>
+                  {section.images?.map((item) => (
+                    <figure class={`gallery-item gallery-item--${item.span ?? "half"} tone-${item.tone ?? "bleu"}`}>
+                      <div
+                        class="gallery-media"
+                        style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
+                      >
+                        <MediaBlock src={item.src} alt={item.alt ?? item.caption ?? ""} />
+                      </div>
+                      {item.caption && <figcaption>{item.caption}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    )}
+
+    <!-- Slot libre pour du contenu spécifique à une page projet
+         (texte long, citation, vidéo embarquée…) sans modifier le layout. -->
+    <slot name="extra" />
+  </article>
+</BaseLayout>
+
+<style>
+  /* ==========================================================
+     CONTAINER — même fond que /work pour la continuité visuelle
+     quand on clique sur un projet depuis la liste.
+     ========================================================== */
+  .project {
+    background: var(--sauge);
+    color: var(--noir);
+    --project-rhythm: clamp(6rem, 10vw, 11rem);
+    /* Ligne haute partagée avec la nav : --page-top + compensation
+       du line-height 0.76 du titre display. */
+    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 7rem;
+    min-height: 100vh;
+    isolation: isolate;
+  }
+
+  /* ==========================================================
+     HEADER — titre à gauche, méta (catégorie / année) à droite
+     aligné baseline basse comme sur /work
+     ========================================================== */
+  .project-header {
+    position: sticky;
+    top: calc(var(--page-top) + var(--title-top-offset));
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 3rem;
+    margin: 0 0 clamp(10rem, 22vh, 18rem);
+    padding-right: 6rem; /* réserve la place du header nav fixé */
+  }
+
+  /* Même typo que le hero home et le titre /work */
+  .project-title {
+    font-family: var(--font-display);
+    font-size: var(--type-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-hero);
+    line-height: 0.76;
+    margin: 0;
+    max-width: 14ch;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .project-category {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: 400;
+    text-transform: lowercase;
+    letter-spacing: 0.015em;
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .project-year {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    margin: 0;
+    opacity: 0.6;
+  }
+
+  /* ==========================================================
+     HERO image — bloc d'ouverture volontairement plus haut que
+     le viewport : l'image dépasse en bas et appelle au scroll.
+     ========================================================== */
+  .project-hero {
+    position: relative;
+    z-index: 2;
+    margin: 0 0 var(--project-rhythm);
+  }
+
+  .project-hero-media {
+    width: 100%;
+    height: clamp(38rem, 88vh, 62rem);
+    background: var(--bleu);
+    overflow: hidden;
+  }
+
+  .project-hero figcaption {
+    font-family: var(--font-body);
+    font-size: var(--type-caption);
+    letter-spacing: 0.01em;
+    opacity: 0.6;
+    margin-top: 0.7rem;
+  }
+
+  /* ==========================================================
+     PROJECT SECTIONS — système répétable :
+     nom du projet à gauche, texte à droite, images par paire.
+     ========================================================== */
+  .project-sections {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    gap: var(--project-rhythm);
+    background: var(--sauge);
+  }
+
+  .project-sections::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--project-rhythm) * -1) 0 100%;
+    background: var(--sauge);
+    pointer-events: none;
+  }
+
+  .project-section {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  .project-section-copy {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.9fr) minmax(24rem, 1fr);
+    column-gap: clamp(2rem, 6vw, 7rem);
+    align-items: start;
+    min-height: clamp(14rem, 28vh, 22rem);
+  }
+
+  .project-section h2 {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.15vw, 1.35rem);
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .project-section-text {
+    display: grid;
+    gap: 1rem;
+    max-width: 58ch;
+  }
+
+  .project-section-text p {
+    font-family: var(--font-body);
+    font-size: clamp(1.35rem, 1.65vw, 2rem);
+    line-height: 1.32;
+    letter-spacing: -0.035em;
+    margin: 0;
+  }
+
+  /* ==========================================================
+     GALLERY — grille stricte par paires, items uniformes
+     ========================================================== */
+  .project-section-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.3rem;
+    row-gap: 1.3rem;
+  }
+
+  .gallery-item {
+    margin: 0;
+    min-width: 0;
+  }
+
+  /* gardé pour compat : si une page a besoin d'un item pleine largeur */
+  .gallery-item--full {
+    grid-column: 1 / -1;
+  }
+
+  .gallery-media {
+    width: 100%;
+    background: var(--bleu);
+    overflow: hidden;
+  }
+
+  .gallery-item figcaption {
+    font-family: var(--font-body);
+    font-size: var(--type-caption);
+    letter-spacing: 0.01em;
+    opacity: 0.55;
+    margin-top: 0.65rem;
+  }
+
+  /* ==========================================================
+     TONALITÉS de placeholder : permettent de varier les blocs
+     sans modifier le CSS, via la prop `tone`.
+     ========================================================== */
+  .tone-bleu   .project-hero-media,
+  .tone-bleu   .gallery-media   { background: var(--bleu); }
+  .tone-sauge  .project-hero-media,
+  .tone-sauge  .gallery-media   { background: var(--sauge); }
+  .tone-beige  .project-hero-media,
+  .tone-beige  .gallery-media   { background: var(--beige); }
+  .tone-orange .project-hero-media,
+  .tone-orange .gallery-media   { background: var(--orange); }
+  .tone-noir   .project-hero-media,
+  .tone-noir   .gallery-media   { background: var(--noir); }
+
+  /* ==========================================================
+     RESPONSIVE
+     ========================================================== */
+  @media (max-width: 960px) {
+    .project-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      padding-right: 0;
+    }
+    .project-meta {
+      align-items: flex-start;
+      text-align: left;
+      flex-direction: row;
+      gap: 1rem;
+    }
+    .project-section-copy {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+      min-height: 0;
+    }
+    .project-section-gallery {
+      grid-template-columns: 1fr;
+      row-gap: 2rem;
+    }
+  }
+</style>

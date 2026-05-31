@@ -1,0 +1,397 @@
+/* ============================================================
+   Clément Jorge — portfolio
+   Design suisse, éditorial, minimal. Desktop first.
+   ============================================================ */
+
+:root {
+  /* couleurs */
+  --beige: #ebe5d4;
+  --sauge: #729076;
+  --orange: #ff3d00;
+  --bleu: #a6d2da;
+  --noir: #0f0f0f;
+  --hairline: rgba(15, 15, 15, 0.22);
+  --dim: rgba(15, 15, 15, 0.6);
+
+  /* familles typo */
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+
+  /* échelle typographique
+     --type-display sert pour TOUS les gros titres de page
+     (hero home ET titre /work) pour garantir une vraie cohérence
+     d'échelle entre les pages. */
+  --type-display:  clamp(2.75rem, 6vw, 6.5rem);      /* hero home + titre /work */
+  --type-quote:    clamp(1.6rem, 2.9vw, 3.3rem);     /* about quote */
+  --type-contact:  clamp(1.75rem, 2.7vw, 2.75rem);   /* email / tél */
+  --type-project:  clamp(1.4rem, 2.25vw, 2.25rem);   /* /work item */
+  --type-body:     18px;
+  --type-caption:  15px;
+  --type-micro:    12px;
+
+  /* tracking */
+  --tracking-hero:   -0.055em;
+  --tracking-tight:  -0.035em;
+  --tracking-normal: -0.015em;
+  --tracking-loose:  0.02em;
+  --tracking-nav:    0.08em;
+
+  /* rythme page
+     --page-top : ligne horizontale de composition partagée entre
+     la nav fixée et le padding-top des pages. La nav et les gros
+     titres démarrent tous sur la même ligne de grille.
+     La compensation (0.12 * --type-display) absorbe l'overflow
+     supérieur des glyphes dû à line-height: 0.76 sur les titres,
+     pour que le TOP VISUEL des lettres tombe pile sur --page-top. */
+  --page-top: 1rem;
+  --title-top-offset: calc(var(--type-display) * 0.12);
+
+  /* --page-top-line : alias sémantique de --page-top. C'est la
+     LIGNE HORIZONTALE HAUTE commune à toute la composition :
+     le haut visuel (= haut des ascenders) des gros titres de page
+     (hero home, /work, pages projet) ET le haut visuel du premier
+     item de la nav fixée en haut à droite ("ABOUT") tombent tous
+     sur cette ligne unique. Défini comme alias pour ne pas casser
+     l'existant, mais à préférer dans tout nouveau code qui parle
+     d'alignement haut. */
+  --page-top-line: var(--page-top);
+
+  /* --nav-top-offset : décalage vertical ajouté à --page-top-line
+     pour positionner le header fixé. L'observation empirique dans
+     le navigateur (contrairement à la théorie pure des half-leadings
+     négatifs) montre que le haut visible des capitales des gros
+     titres tombe quasiment sur le TOP DE LA BOX du h1, c'est-à-dire
+     à --page-top + --title-top-offset. Pour que le haut visible du
+     "A" de "ABOUT" retombe sur la même ligne, on aligne donc le top
+     de la box du header fixé sur ce même point. La nav (Inter 10px
+     line-height 1) a un cap-overshoot au-dessus de la line box quasi
+     nul, ce qui suffit pour un alignement visuel correct.
+
+     Formule : nav_top = --page-top-line + --title-top-offset
+     → nav-top-offset = --title-top-offset (alias sémantique).
+
+     Responsive automatique via le clamp de --type-display qui pilote
+     --title-top-offset. Ajustable via --title-top-offset si le ratio
+     d'overflow change avec une autre fonte display. */
+  --nav-top-offset: var(--title-top-offset);
+
+  --pad-x: clamp(0.75rem, 1vw, 1.25rem);
+  --gap-s: 0.5rem;
+  --gap-m: 1.25rem;
+  --gap-l: 3rem;
+  --gap-xl: 6rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--noir);
+  background: var(--beige);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* par défaut, les titres display sont en 600 (pas 700) — plus fin, plus Kultiveret */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: var(--orange);
+  color: var(--beige);
+}
+
+/* ------------------------------------------------------------
+   Apparition des textes au scroll
+   ------------------------------------------------------------ */
+.text-reveal {
+  font-kerning: none;
+}
+
+.text-reveal-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.08em 0 0.18em;
+  margin: -0.08em 0 -0.18em;
+}
+
+.text-reveal-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-reveal {
+    font-kerning: auto;
+  }
+}
+
+/* ------------------------------------------------------------
+   Utilitaires graphiques : hairlines pointillés
+   (utilisés par la timeline about et le footer)
+   ------------------------------------------------------------ */
+.dashed-x {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--noir) 0 4px,
+    transparent 4px 9px
+  );
+}
+
+.dashed-y {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--noir) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+/* ------------------------------------------------------------
+   Curseur compagnon : point plein qui traîne la souris.
+   Structure à deux niveaux :
+   - #cursor-dot        : positionné par JS (transform en lerp)
+   - .cursor-dot__inner : visuel (taille / couleur / opacity)
+   Permet d'animer la taille du point en CSS quand il passe sur
+   un texte cliquable, sans entrer en conflit avec le transform JS.
+   ------------------------------------------------------------ */
+#cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  /* CRUCIAL : pointer-events: none doit être appliqué AUSSI à tous les
+     descendants. En CSS, `pointer-events: none` ne se propage pas aux
+     enfants — un enfant avec la valeur par défaut `auto` redevient
+     cible du hit-test et "vole" les événements de la souris au lien
+     qui se trouve en dessous. C'était exactement le bug qui faisait
+     "rejouer" le scramble en plein milieu : le dot rattrapait la
+     souris au bout de ~300ms, sa forme visible (.cursor-dot__inner)
+     passait au-dessus du lien avec z-index 9999, le navigateur
+     recalculait l'élément sous le curseur, et le lien recevait un
+     faux `mouseleave`.
+     Avec la règle descendants, le dot devient entièrement invisible
+     au hit-test : les hover natifs du lien fonctionnent à 100 %. */
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  will-change: transform;
+}
+
+#cursor-dot *,
+#cursor-dot *::before,
+#cursor-dot *::after {
+  pointer-events: none;
+}
+
+#cursor-dot.is-visible {
+  opacity: 1;
+}
+
+.cursor-dot__inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: var(--orange);
+  border-radius: 50%;
+  transform: scale(1);
+  opacity: 1;
+  /* Ceinture et bretelles : même si la règle descendants au-dessus
+     couvre déjà le cas, on le redéclare ici pour que la règle soit
+     visible directement sur l'élément qui porte le visuel. */
+  pointer-events: none;
+  transition:
+    transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.32s ease,
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    margin 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.18s ease,
+    border-radius 0.18s ease;
+}
+
+.cursor-dot__inner::before,
+.cursor-dot__inner::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: var(--orange);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.18s ease;
+}
+
+.cursor-dot__inner::before {
+  width: 26px;
+  height: 4px;
+}
+
+.cursor-dot__inner::after {
+  width: 4px;
+  height: 26px;
+}
+
+/* Quand le point survole un texte cliquable : disparaît totalement
+   (rétrécit + opacity à zéro). Le retour se fait fluidement via la
+   transition déclarée sur .cursor-dot__inner.
+
+   Pilotage 100 % CSS via :has() — dès qu'une .interactive-zone est
+   hovered n'importe où dans le body, le dot se rétracte. Cela rend
+   la disparition du dot totalement indépendante du JS de scramble :
+   le dot est un pur effet visuel secondaire, il ne peut plus être
+   ni la cause, ni la condition du déclenchement du hover texte. */
+body:has(.interactive-zone:hover):not(:has(.cursor-cross-zone:hover)) #cursor-dot .cursor-dot__inner,
+#cursor-dot.is-over-link .cursor-dot__inner {
+  transform: scale(0);
+  opacity: 0;
+}
+
+body:has(.cursor-cross-zone:hover) #cursor-dot .cursor-dot__inner {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  background: transparent;
+  border-radius: 0;
+  transform: scale(1);
+  opacity: 1;
+}
+
+body:has(.cursor-cross-zone:hover) #cursor-dot .cursor-dot__inner::before,
+body:has(.cursor-cross-zone:hover) #cursor-dot .cursor-dot__inner::after {
+  opacity: 1;
+}
+
+/* Sécurité CSS : masqué sur touch / pointer grossier */
+@media (hover: none), (pointer: coarse) {
+  #cursor-dot {
+    display: none;
+  }
+}
+
+/* Sécurité CSS : masqué si l'utilisateur préfère réduire les mouvements */
+@media (prefers-reduced-motion: reduce) {
+  #cursor-dot {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Texte cliquable — système à deux rôles distincts :
+
+   • .interactive-zone
+       la vraie zone hoverable / cliquable (généralement un <a>).
+       Reçoit le listener JS (mouseenter / mouseleave) et pilote
+       l'état hover/focus/active pour l'underline via CSS.
+
+   • [data-scramble-text]
+       l'élément texte précis à scrambler et à souligner.
+       Reçoit le pseudo ::after (underline) et voit son textContent
+       modifié par le JS pendant la durée du scramble.
+
+   Les deux rôles peuvent être portés par le même élément
+   (header nav, footer contact → <a> est à la fois zone et texte)
+   ou par deux éléments imbriqués
+   (/work → <a> est la zone, <span> enfant porte le texte).
+   ------------------------------------------------------------ */
+
+[data-scramble-text] {
+  position: relative;
+  display: inline-block;
+}
+
+[data-scramble-text]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.08em;
+  height: 1px;
+  background: currentColor;
+  transform: translate3d(0, 0, 0) scaleX(0);
+  transform-origin: right center;
+  transition: transform 1s cubic-bezier(0.6, 0.04, 0.2, 1);
+  backface-visibility: hidden;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* L'underline s'affiche UNIQUEMENT au vrai hover souris (ou sur
+   l'état .active qui marque la page courante côté nav).
+   Aucun :focus / :focus-visible ici : on ne veut pas que le clic
+   souris — qui peut déclencher :focus-visible selon l'heuristique
+   du navigateur — fasse "rester" l'underline après que la souris
+   a quitté l'élément. Le système entier doit reposer uniquement
+   sur le vrai passage de la souris.
+   Deux cas couverts : zone englobe le texte, zone EST le texte. */
+.interactive-zone:hover [data-scramble-text]::after,
+.interactive-zone.active [data-scramble-text]::after,
+[data-scramble-text].interactive-zone:hover::after,
+[data-scramble-text].interactive-zone.active::after {
+  transform: translate3d(0, 0, 0) scaleX(1);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-scramble-text]::after {
+    transition: none;
+  }
+}

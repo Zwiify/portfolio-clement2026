@@ -1,0 +1,15 @@
+---
+import ProjectLayout from "../../layouts/ProjectLayout.astro";
+import { getWorkPage } from "../../data/work";
+
+const page = getWorkPage("croquis-d-exterieur");
+---
+
+<ProjectLayout
+  title={page.title}
+  heroImage={page.heroImage}
+  heroRatio={page.heroRatio}
+  heroTone={page.heroTone}
+  projectSections={page.sections}
+  description={page.description}
+/>

@@ -1,0 +1,160 @@
+---
+---
+
+<footer id="contact" class="contact">
+  <div class="contact-top">
+    <p class="contact-label">Contact</p>
+    <p class="contact-sub">
+      &mdash;&nbsp;disponible pour stages et projets
+    </p>
+  </div>
+
+  <div class="contact-bottom">
+    <div class="contact-lines">
+      <a
+        href="mailto:clement@jorge.fr"
+        class="contact-line interactive-zone"
+      >
+        <span data-scramble-text="">clement@jorge.fr</span>
+      </a>
+
+      <div class="contact-tail">
+        <div class="contact-phone-group">
+          <a
+            href="tel:+33699550367"
+            class="contact-line interactive-zone"
+          >
+            <span data-scramble-text="">+33 6 99 55 03 67</span>
+          </a>
+
+          <div class="contact-social">
+            <a
+              href="https://www.linkedin.com/in/cl%C3%A9ment-jorge-696173312"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="interactive-zone"
+            >
+              <span data-scramble-text="">LinkedIn</span>
+            </a>
+            <a
+              href="https://www.instagram.com/zwiify"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="interactive-zone"
+            >
+              <span data-scramble-text="">Instagram</span>
+            </a>
+          </div>
+        </div>
+
+        <p class="contact-copy">© 2026 &mdash; Clément Jorge</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .contact {
+    background: var(--beige);
+    color: var(--noir);
+    padding: 2rem var(--pad-x) 1.5rem;
+    min-height: 46vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* top : label + sous-titre en ligne */
+  .contact-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .contact-label {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .contact-sub {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    margin: 0;
+    opacity: 0.55;
+  }
+
+  /* bas : email + téléphone, social + copyright */
+  .contact-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .contact-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    width: 100%;
+  }
+
+  .contact-tail {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .contact-phone-group {
+    width: max-content;
+  }
+
+  .contact-line {
+    font-family: var(--font-display);
+    font-size: var(--type-contact);
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    line-height: 1;
+    transition: color 0.15s ease;
+  }
+
+  .contact-line:hover {
+    color: var(--orange);
+  }
+
+  .contact-social {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 0.85rem;
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+  }
+
+  .contact-social a {
+    transition: color 0.15s ease;
+  }
+
+  .contact-social a:hover {
+    color: var(--orange);
+  }
+
+  .contact-copy {
+    font-family: var(--font-body);
+    font-size: 11px;
+    opacity: 0.5;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 960px) {
+    .contact-tail {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
+</style>

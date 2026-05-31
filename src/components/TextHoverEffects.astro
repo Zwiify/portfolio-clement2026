@@ -1,0 +1,173 @@
+---
+/**
+ * TextHoverEffects
+ *
+ * Ajoute un effet de "recherche" typographique sur les textes marqués
+ * avec [data-scramble-text], piloté par la zone .interactive-zone.
+ * L'underline reste géré en CSS dans global.css.
+ */
+---
+
+<script>
+  (() => {
+    const enableLetterSearch = false;
+
+    if (typeof window.__textHoverCleanup === "function") {
+      try {
+        window.__textHoverCleanup();
+      } catch (_) {
+        /* no-op */
+      }
+    }
+
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!enableLetterSearch || !canHover) {
+      window.__textHoverCleanup = () => {};
+      return;
+    }
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    const LETTERS_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const LETTERS_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    const ACCENTS_UPPER = "ÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸ";
+    const ACCENTS_LOWER = "àâäçéèêëîïôöùûüÿ";
+    const DIGITS = "0123456789";
+    const SYMBOLS = "*/+-=<>#@$%&?";
+
+    const getOriginal = (target) => target.__scrambleOriginal || "";
+
+    const stopScramble = (target, restore = true) => {
+      if (target.__scrambleRaf) {
+        cancelAnimationFrame(target.__scrambleRaf);
+        target.__scrambleRaf = 0;
+      }
+
+      if (restore) {
+        target.textContent = getOriginal(target);
+      }
+    };
+
+    const randomCharFor = (char) => {
+      if (/[0-9]/.test(char)) {
+        return DIGITS[Math.floor(Math.random() * DIGITS.length)];
+      }
+
+      if (/[A-Z]/.test(char)) {
+        return LETTERS_UPPER[Math.floor(Math.random() * LETTERS_UPPER.length)];
+      }
+
+      if (/[a-z]/.test(char)) {
+        return LETTERS_LOWER[Math.floor(Math.random() * LETTERS_LOWER.length)];
+      }
+
+      if (ACCENTS_UPPER.includes(char)) {
+        return ACCENTS_UPPER[Math.floor(Math.random() * ACCENTS_UPPER.length)];
+      }
+
+      if (ACCENTS_LOWER.includes(char)) {
+        return ACCENTS_LOWER[Math.floor(Math.random() * ACCENTS_LOWER.length)];
+      }
+
+      if (char.trim() === "") return char;
+      return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+    };
+
+    const runScramble = (target) => {
+      const original = getOriginal(target);
+      if (!original || reduced) return;
+
+      stopScramble(target, false);
+
+      const chars = Array.from(original);
+      const mutableIndexes = chars
+        .map((char, index) => (char.trim() === "" ? -1 : index))
+        .filter((index) => index >= 0);
+
+      if (!mutableIndexes.length) return;
+
+      const duration = Math.min(1150, Math.max(520, mutableIndexes.length * 42));
+      const start = performance.now();
+      const scrambleStep = 34;
+      let lastScramble = 0;
+      let frame = chars.slice();
+
+      const tick = (now) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const revealPosition = Math.floor(progress * (mutableIndexes.length + 1));
+
+        if (now - lastScramble >= scrambleStep || progress >= 1) {
+          frame = chars.map((char, index) => {
+            const mutablePosition = mutableIndexes.indexOf(index);
+
+            if (mutablePosition === -1 || mutablePosition < revealPosition || progress >= 1) {
+              return char;
+            }
+
+            return randomCharFor(char);
+          });
+
+          target.textContent = frame.join("");
+          lastScramble = now;
+        }
+
+        if (progress < 1) {
+          target.__scrambleRaf = requestAnimationFrame(tick);
+        } else {
+          target.textContent = original;
+          target.__scrambleRaf = 0;
+        }
+      };
+
+      target.__scrambleRaf = requestAnimationFrame(tick);
+    };
+
+    const resolveTarget = (zone) => {
+      if (zone.hasAttribute("data-scramble-text")) return zone;
+      return zone.querySelector("[data-scramble-text]");
+    };
+
+    const prepareTarget = (target) => {
+      if (typeof target.__scrambleOriginal !== "string") {
+        target.__scrambleOriginal = target.textContent || "";
+      }
+
+      const width = Math.ceil(target.getBoundingClientRect().width);
+      if (width > 0) target.style.minWidth = `${width}px`;
+    };
+
+    const zones = document.querySelectorAll(".interactive-zone");
+    zones.forEach((zone) => {
+      const target = resolveTarget(zone);
+      if (!target) return;
+
+      prepareTarget(target);
+
+      zone.addEventListener(
+        "mouseenter",
+        () => {
+          runScramble(target);
+        },
+        { signal }
+      );
+
+      zone.addEventListener(
+        "mouseleave",
+        () => {
+          stopScramble(target);
+        },
+        { signal }
+      );
+    });
+
+    window.__textHoverCleanup = () => {
+      controller.abort();
+      document.querySelectorAll("[data-scramble-text]").forEach((target) => {
+        stopScramble(target);
+      });
+    };
+  })();
+</script>
