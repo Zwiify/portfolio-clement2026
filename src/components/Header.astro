@@ -78,17 +78,59 @@ const isWork = pathname === "/work" || pathname === "/work/";
       ".media-block-image, .media-placeholder, .project-image, .about-img, .project-hero-media, .gallery-media, .work-preview",
     ));
 
+    const isGreenSurfaceAt = (x, y, sauge) => {
+      const surface = document.elementsFromPoint(x, y).find((element) => !header.contains(element));
+      const color = surface ? visibleBackground(surface) : null;
+
+      return Boolean(surface) && !isImageSurface(surface) && distance(color, sauge) < 12;
+    };
+
+    const buildTextGradient = (text, sauge) => {
+      const rect = text.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return "var(--orange)";
+
+      const sampleCount = Math.max(10, Math.ceil(rect.height));
+      const x = rect.left + rect.width / 2;
+      const segments = [];
+      let currentTone = null;
+      let start = 0;
+
+      for (let index = 0; index <= sampleCount; index += 1) {
+        const progress = index / sampleCount;
+        const y = rect.top + rect.height * progress;
+        const tone = isGreenSurfaceAt(x, y, sauge) ? "var(--beige)" : "var(--orange)";
+
+        if (currentTone === null) {
+          currentTone = tone;
+          start = 0;
+          continue;
+        }
+
+        if (tone !== currentTone || index === sampleCount) {
+          const end = progress * 100;
+          segments.push(`${currentTone} ${start.toFixed(2)}%`, `${currentTone} ${end.toFixed(2)}%`);
+          currentTone = tone;
+          start = end;
+        }
+      }
+
+      return `linear-gradient(to bottom, ${segments.join(", ")})`;
+    };
+
     const updateLinkTone = () => {
       const sauge = getSauge();
 
       links.forEach((link) => {
-        const rect = link.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        const surface = document.elementsFromPoint(x, y).find((element) => !header.contains(element));
-        const color = surface ? visibleBackground(surface) : null;
+        const text = link.querySelector("[data-scramble-text]");
+        if (!text) return;
 
-        link.classList.toggle("is-over-green", Boolean(surface) && !isImageSurface(surface) && distance(color, sauge) < 12);
+        const rect = text.getBoundingClientRect();
+        const underlineY = rect.bottom + 1;
+        const underlineX = rect.left + rect.width / 2;
+        const underlineColor = isGreenSurfaceAt(underlineX, underlineY, sauge) ? "var(--beige)" : "var(--orange)";
+
+        text.style.setProperty("--nav-tone-gradient", buildTextGradient(text, sauge));
+        text.style.setProperty("--nav-underline-color", underlineColor);
       });
     };
 
@@ -147,11 +189,18 @@ const isWork = pathname === "/work" || pathname === "/work/";
     margin: 0;
     padding: 0.08rem 0 0.08rem 0.7rem;
     display: block;
-    transition: color 0.18s ease;
   }
 
-  nav a.is-over-green {
-    color: var(--beige);
+  .site-header [data-scramble-text] {
+    background-image: var(--nav-tone-gradient, linear-gradient(var(--orange), var(--orange)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .site-header [data-scramble-text]::after {
+    background: var(--nav-underline-color, var(--orange));
   }
 
   /* Aucune variation d'opacité ici : l'interaction se fait via

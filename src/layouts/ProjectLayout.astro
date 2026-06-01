@@ -23,6 +23,7 @@
  */
 import BaseLayout from "./BaseLayout.astro";
 import MediaBlock from "../components/MediaBlock.astro";
+import { workIndex } from "../data/work";
 import type { GalleryItem, ImageAsset, PlaceholderTone, ProjectSection } from "../data/types";
 
 export interface Props {
@@ -76,6 +77,11 @@ const contentSections =
       : [];
 
 const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
+const currentWorkIndex = workIndex.findIndex((item) => item.title === title);
+const nextWork =
+  currentWorkIndex >= 0
+    ? workIndex[(currentWorkIndex + 1) % workIndex.length]
+    : undefined;
 ---
 
 <BaseLayout title={finalPageTitle} description={description}>
@@ -150,8 +156,52 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     <!-- Slot libre pour du contenu spécifique à une page projet
          (texte long, citation, vidéo embarquée…) sans modifier le layout. -->
     <slot name="extra" />
+
+    {nextWork && (
+      <nav class="next-project" aria-label="Navigation entre les pages work">
+        <a
+          href={`/work/${nextWork.slug}`}
+          class="next-project-link interactive-zone"
+          aria-label={`Projet suivant : ${nextWork.title}`}
+        >
+          <span data-scramble-text="">Projet suivant ↗</span>
+        </a>
+      </nav>
+    )}
   </article>
 </BaseLayout>
+
+<script>
+  (() => {
+    const project = document.querySelector(".project");
+    const header = document.querySelector(".project-header");
+    const hero = document.querySelector(".project-hero");
+
+    if (!project || !header || !hero) return;
+
+    const updateTitleVisibility = () => {
+      const headerRect = header.getBoundingClientRect();
+      const heroRect = hero.getBoundingClientRect();
+      project.classList.toggle("project-title-is-hidden", heroRect.bottom <= headerRect.bottom);
+    };
+
+    let frame = 0;
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updateTitleVisibility();
+      });
+    };
+
+    updateTitleVisibility();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("pageshow", requestUpdate);
+    window.addEventListener("cj:page-transition-revealed", requestUpdate);
+  })();
+</script>
 
 <style>
   /* ==========================================================
@@ -164,7 +214,7 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     --project-rhythm: clamp(6rem, 10vw, 11rem);
     /* Ligne haute partagée avec la nav : --page-top + compensation
        du line-height 0.76 du titre display. */
-    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 7rem;
+    padding: calc(var(--page-top) + var(--title-top-offset)) var(--pad-x) 2rem;
     min-height: 100vh;
     isolation: isolate;
   }
@@ -183,6 +233,12 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     gap: 3rem;
     margin: 0 0 clamp(10rem, 22vh, 18rem);
     padding-right: 6rem; /* réserve la place du header nav fixé */
+    transition: opacity 0.16s ease;
+  }
+
+  .project-title-is-hidden .project-header {
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* Même typo que le hero home et le titre /work */
@@ -191,7 +247,7 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     font-size: var(--type-display);
     font-weight: 600;
     letter-spacing: var(--tracking-hero);
-    line-height: 0.76;
+    line-height: 0.88;
     margin: 0;
     max-width: 14ch;
   }
@@ -355,6 +411,41 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
   .tone-noir   .gallery-media   { background: var(--noir); }
 
   /* ==========================================================
+     NEXT PROJECT — navigation rapide entre les matières,
+     dans l'ordre de la page /work.
+     ========================================================== */
+  .next-project {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.3rem;
+    margin-top: var(--project-rhythm);
+    background: var(--sauge);
+  }
+
+  .next-project-link {
+    position: relative;
+    z-index: 1;
+    grid-column: 2;
+    justify-self: end;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 2.75vw, 3.45rem);
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: var(--tracking-tight);
+    color: var(--noir);
+  }
+
+  .next-project::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--project-rhythm) * -1) 0 0;
+    background: var(--sauge);
+    pointer-events: none;
+  }
+
+  /* ==========================================================
      RESPONSIVE
      ========================================================== */
   @media (max-width: 960px) {
@@ -379,6 +470,13 @@ const finalPageTitle = pageTitle ?? `${title} — Clément Jorge`;
     .project-section-gallery {
       grid-template-columns: 1fr;
       row-gap: 2rem;
+    }
+    .next-project {
+      grid-template-columns: 1fr;
+    }
+    .next-project-link {
+      grid-column: 1;
+      justify-self: start;
     }
   }
 </style>
