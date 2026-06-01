@@ -20,6 +20,96 @@ const isWork = pathname === "/work" || pathname === "/work/";
   </nav>
 </header>
 
+<script>
+  (() => {
+    const header = document.querySelector(".site-header");
+    const links = Array.from(document.querySelectorAll(".site-header nav a"));
+    if (!header || links.length === 0) return;
+
+    const parseColor = (value) => {
+      const color = value.trim();
+      const rgb = color.match(/^rgba?\(([^)]+)\)$/i);
+
+      if (rgb) {
+        const parts = rgb[1].split(",").map((part) => Number.parseFloat(part.trim()));
+        return {
+          r: parts[0] || 0,
+          g: parts[1] || 0,
+          b: parts[2] || 0,
+          a: parts.length > 3 ? parts[3] : 1,
+        };
+      }
+
+      const hex = color.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      if (!hex) return null;
+
+      const raw = hex[1].length === 3
+        ? hex[1].split("").map((char) => char + char).join("")
+        : hex[1];
+
+      return {
+        r: Number.parseInt(raw.slice(0, 2), 16),
+        g: Number.parseInt(raw.slice(2, 4), 16),
+        b: Number.parseInt(raw.slice(4, 6), 16),
+        a: 1,
+      };
+    };
+
+    const getSauge = () => parseColor(getComputedStyle(document.documentElement).getPropertyValue("--sauge"));
+
+    const distance = (a, b) => {
+      if (!a || !b) return Number.POSITIVE_INFINITY;
+      return Math.hypot(a.r - b.r, a.g - b.g, a.b - b.b);
+    };
+
+    const visibleBackground = (element) => {
+      let node = element;
+
+      while (node && node instanceof Element) {
+        const color = parseColor(getComputedStyle(node).backgroundColor);
+        if (color && color.a > 0.01) return color;
+        node = node.parentElement;
+      }
+
+      return parseColor(getComputedStyle(document.body).backgroundColor);
+    };
+
+    const isImageSurface = (element) => Boolean(element.closest(
+      ".media-block-image, .media-placeholder, .project-image, .about-img, .project-hero-media, .gallery-media, .work-preview",
+    ));
+
+    const updateLinkTone = () => {
+      const sauge = getSauge();
+
+      links.forEach((link) => {
+        const rect = link.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const surface = document.elementsFromPoint(x, y).find((element) => !header.contains(element));
+        const color = surface ? visibleBackground(surface) : null;
+
+        link.classList.toggle("is-over-green", Boolean(surface) && !isImageSurface(surface) && distance(color, sauge) < 12);
+      });
+    };
+
+    let frame = 0;
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updateLinkTone();
+      });
+    };
+
+    updateLinkTone();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("pageshow", requestUpdate);
+    window.addEventListener("cj:page-transition-revealed", requestUpdate);
+  })();
+</script>
+
 <style>
   .site-header {
     position: fixed;
@@ -57,6 +147,11 @@ const isWork = pathname === "/work" || pathname === "/work/";
     margin: 0;
     padding: 0.08rem 0 0.08rem 0.7rem;
     display: block;
+    transition: color 0.18s ease;
+  }
+
+  nav a.is-over-green {
+    color: var(--beige);
   }
 
   /* Aucune variation d'opacité ici : l'interaction se fait via
