@@ -50,6 +50,7 @@
     };
 
     const resetOverlay = () => {
+      document.documentElement.classList.remove("has-page-transition-enter");
       overlay.classList.add("is-resetting");
       overlay.classList.remove("is-covering", "is-exiting");
       count.textContent = "00";
@@ -60,6 +61,19 @@
         });
       });
     };
+
+    window.addEventListener("pageshow", (event) => {
+      if (!event.persisted) return;
+
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch (_) {
+        /* no-op */
+      }
+
+      resetOverlay();
+      markPageRevealed();
+    });
 
     const finishIncomingTransition = async () => {
       let shouldReveal = false;
