@@ -68,6 +68,7 @@ export const workPages: Record<string, WorkPageContent> = {
           "Pour cette affiche, je suis parti de la phrase “Follow the white rabbit”, plutôt que de représenter directement Matrix. J'ai voulu que la typographie devienne presque une image en elle-même, très dense, comme un message à décoder. Le côté massif, sombre et texturé permet de retrouver quelque chose de l'univers du film sans passer par une illustration classique.",
         images: gallery("Matrix", [
           "/images/work/design-graphique/matrix-01.webp",
+          "/images/work/design-graphique/matrix-02.webp",
         ]),
       },
       {

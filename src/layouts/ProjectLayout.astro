@@ -643,7 +643,7 @@ const lightboxGroups = contentSections.map((section) => ({
     background: transparent;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.24s ease;
+    transition: none;
   }
 
   .project-lightbox::before {
@@ -654,6 +654,8 @@ const lightboxGroups = contentSections.map((section) => ({
     background: rgba(12, 14, 13, 0.82);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
+    transform: translateZ(0);
+    will-change: backdrop-filter;
   }
 
   .project-lightbox[aria-hidden="false"] {
@@ -667,6 +669,14 @@ const lightboxGroups = contentSections.map((section) => ({
     margin: 0;
     max-width: min(82vw, 92rem);
     max-height: min(78vh, 58rem);
+    opacity: 0;
+    transform: translateY(0.4rem);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .project-lightbox[aria-hidden="false"] .project-lightbox-figure {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .project-lightbox-image {
