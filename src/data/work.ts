@@ -149,6 +149,8 @@ export const workPages: Record<string, WorkPageContent> = {
         images: gallery("Mise en page Beatles", [
           "/images/work/typographie-et-mise-en-page/beatles-01.webp",
           "/images/work/typographie-et-mise-en-page/beatles-02.webp",
+          "/images/work/typographie-et-mise-en-page/beatles-03.webp",
+          "/images/work/typographie-et-mise-en-page/beatles-04.webp",
         ]),
       },
       {
