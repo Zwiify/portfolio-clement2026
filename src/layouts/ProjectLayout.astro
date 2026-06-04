@@ -82,6 +82,17 @@ const nextWork =
   currentWorkIndex >= 0
     ? workIndex[(currentWorkIndex + 1) % workIndex.length]
     : undefined;
+
+const lightboxGroups = contentSections.map((section) => ({
+  title: section.title,
+  images: (section.images ?? [])
+    .filter((item) => item.src)
+    .map((item) => ({
+      src: item.src,
+      alt: item.alt ?? item.caption ?? section.title,
+      caption: item.caption ?? "",
+    })),
+}));
 ---
 
 <BaseLayout title={finalPageTitle} description={description}>
@@ -116,12 +127,13 @@ const nextWork =
          ============================================================ -->
     {contentSections.length > 0 && (
       <div class="project-sections">
-        {contentSections.map((section) => {
+        {contentSections.map((section, sectionIndex) => {
           const paragraphs = Array.isArray(section.description)
             ? section.description
             : section.description
               ? [section.description]
               : [];
+          let lightboxImageIndex = -1;
 
           return (
             <section class="project-section">
@@ -134,17 +146,38 @@ const nextWork =
 
               {(section.images?.length ?? 0) > 0 && (
                 <div class="project-section-gallery" aria-label={`Images - ${section.title}`}>
-                  {section.images?.map((item) => (
-                    <figure class={`gallery-item gallery-item--${item.span ?? "half"} tone-${item.tone ?? "bleu"}`}>
-                      <div
-                        class="gallery-media"
-                        style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
-                      >
-                        <MediaBlock src={item.src} alt={item.alt ?? item.caption ?? ""} />
-                      </div>
-                      {item.caption && <figcaption>{item.caption}</figcaption>}
-                    </figure>
-                  ))}
+                  {section.images?.map((item) => {
+                    const itemLightboxIndex = item.src ? ++lightboxImageIndex : -1;
+
+                    return (
+                      <figure class={`gallery-item gallery-item--${item.span ?? "half"} tone-${item.tone ?? "bleu"}`}>
+                        {item.src ? (
+                          <button
+                            class="gallery-lightbox-trigger interactive-zone"
+                            type="button"
+                            data-gallery-group={sectionIndex}
+                            data-gallery-index={itemLightboxIndex}
+                            aria-label={`Agrandir ${item.alt ?? item.caption ?? section.title}`}
+                          >
+                            <span
+                              class="gallery-media"
+                              style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
+                            >
+                              <MediaBlock src={item.src} alt={item.alt ?? item.caption ?? ""} />
+                            </span>
+                          </button>
+                        ) : (
+                          <div
+                            class="gallery-media"
+                            style={`aspect-ratio: ${item.ratio ?? (item.span === "full" ? "16 / 9" : "3 / 2")};`}
+                          >
+                            <MediaBlock src={item.src} alt={item.alt ?? item.caption ?? ""} />
+                          </div>
+                        )}
+                        {item.caption && <figcaption>{item.caption}</figcaption>}
+                      </figure>
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -169,6 +202,30 @@ const nextWork =
       </nav>
     )}
   </article>
+
+  <div class="project-lightbox" data-project-lightbox aria-hidden="true">
+    <button class="project-lightbox-close interactive-zone" type="button" data-lightbox-close aria-label="Fermer l'image agrandie">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+
+    <button class="project-lightbox-arrow project-lightbox-arrow--prev interactive-zone" type="button" data-lightbox-prev aria-label="Image précédente">
+      ‹
+    </button>
+
+    <figure class="project-lightbox-figure">
+      <img class="project-lightbox-image" data-lightbox-image src="" alt="" decoding="async" />
+      <figcaption class="project-lightbox-caption" data-lightbox-caption></figcaption>
+    </figure>
+
+    <button class="project-lightbox-arrow project-lightbox-arrow--next interactive-zone" type="button" data-lightbox-next aria-label="Image suivante">
+      ›
+    </button>
+
+    <p class="project-lightbox-counter" data-lightbox-counter aria-live="polite"></p>
+  </div>
+
+  <script type="application/json" id="project-lightbox-data" set:html={JSON.stringify(lightboxGroups)} />
 </BaseLayout>
 
 <script>
@@ -200,6 +257,92 @@ const nextWork =
     window.addEventListener("resize", requestUpdate);
     window.addEventListener("pageshow", requestUpdate);
     window.addEventListener("cj:page-transition-revealed", requestUpdate);
+  })();
+
+  (() => {
+    const dataEl = document.getElementById("project-lightbox-data");
+    const overlay = document.querySelector("[data-project-lightbox]");
+    const image = document.querySelector("[data-lightbox-image]");
+    const caption = document.querySelector("[data-lightbox-caption]");
+    const counter = document.querySelector("[data-lightbox-counter]");
+    const closeButton = document.querySelector("[data-lightbox-close]");
+    const prevButton = document.querySelector("[data-lightbox-prev]");
+    const nextButton = document.querySelector("[data-lightbox-next]");
+
+    if (!dataEl || !overlay || !image || !caption || !counter || !closeButton || !prevButton || !nextButton) return;
+
+    let groups = [];
+    try {
+      groups = JSON.parse(dataEl.textContent || "[]");
+    } catch {
+      groups = [];
+    }
+
+    let currentGroup = 0;
+    let currentIndex = 0;
+    let lastFocused = null;
+
+    const getCurrentImages = () => groups[currentGroup]?.images ?? [];
+
+    const showImage = (index) => {
+      const images = getCurrentImages();
+      if (!images.length) return;
+
+      currentIndex = (index + images.length) % images.length;
+      const item = images[currentIndex];
+
+      image.src = item.src;
+      image.alt = item.alt || "";
+      caption.textContent = item.caption || "";
+      caption.hidden = !item.caption;
+      prevButton.hidden = images.length < 2;
+      nextButton.hidden = images.length < 2;
+      counter.hidden = images.length < 2;
+      counter.textContent = `${currentIndex + 1}/${images.length}`;
+    };
+
+    const openLightbox = (groupIndex, imageIndex, trigger) => {
+      currentGroup = groupIndex;
+      currentIndex = imageIndex;
+      lastFocused = trigger;
+      showImage(currentIndex);
+      overlay.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("project-lightbox-open");
+      closeButton.focus({ preventScroll: true });
+    };
+
+    const closeLightbox = () => {
+      overlay.setAttribute("aria-hidden", "true");
+      document.documentElement.classList.remove("project-lightbox-open");
+      image.removeAttribute("src");
+      if (lastFocused instanceof HTMLElement) {
+        lastFocused.focus({ preventScroll: true });
+      }
+    };
+
+    document.querySelectorAll("[data-gallery-group][data-gallery-index]").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        const groupIndex = Number(trigger.getAttribute("data-gallery-group"));
+        const imageIndex = Number(trigger.getAttribute("data-gallery-index"));
+        openLightbox(groupIndex, imageIndex, trigger);
+      });
+    });
+
+    closeButton.addEventListener("click", closeLightbox);
+    prevButton.addEventListener("click", () => showImage(currentIndex - 1));
+    nextButton.addEventListener("click", () => showImage(currentIndex + 1));
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) closeLightbox();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (overlay.getAttribute("aria-hidden") === "true") return;
+
+      if (event.key === "Escape") closeLightbox();
+      if (event.key === "ArrowLeft") showImage(currentIndex - 1);
+      if (event.key === "ArrowRight") showImage(currentIndex + 1);
+    });
   })();
 </script>
 
@@ -382,9 +525,40 @@ const nextWork =
   }
 
   .gallery-media {
+    display: block;
     width: 100%;
-    background: var(--bleu);
+    background: var(--beige);
     overflow: hidden;
+  }
+
+  .gallery-media :global(.media-block-image) {
+    object-fit: contain;
+  }
+
+  .gallery-lightbox-trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: inherit;
+  }
+
+  .gallery-lightbox-trigger :global(.media-block-image) {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease;
+  }
+
+  .gallery-lightbox-trigger:hover :global(.media-block-image),
+  .gallery-lightbox-trigger:focus-visible :global(.media-block-image) {
+    transform: scale(1.025);
+    filter: contrast(1.02);
+  }
+
+  .gallery-lightbox-trigger:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 0.25rem;
   }
 
   .gallery-item figcaption {
@@ -409,6 +583,10 @@ const nextWork =
   .tone-orange .gallery-media   { background: var(--orange); }
   .tone-noir   .project-hero-media,
   .tone-noir   .gallery-media   { background: var(--noir); }
+
+  .project-section-gallery .gallery-media {
+    background: var(--beige);
+  }
 
   /* ==========================================================
      NEXT PROJECT — navigation rapide entre les matières,
@@ -446,6 +624,153 @@ const nextWork =
   }
 
   /* ==========================================================
+     LIGHTBOX — consultation grand format des images de projet.
+     Chaque galerie navigue uniquement dans sa section/projet.
+     ========================================================== */
+  :global(html.project-lightbox-open),
+  :global(html.project-lightbox-open body) {
+    overflow: hidden;
+  }
+
+  .project-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: clamp(4rem, 7vw, 7rem) clamp(4rem, 8vw, 8rem);
+    isolation: isolate;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease;
+  }
+
+  .project-lightbox::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(12, 14, 13, 0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  .project-lightbox[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .project-lightbox-figure {
+    display: grid;
+    place-items: center;
+    margin: 0;
+    max-width: min(82vw, 92rem);
+    max-height: min(78vh, 58rem);
+  }
+
+  .project-lightbox-image {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(82vw, 92rem);
+    max-height: min(78vh, 58rem);
+    background: transparent;
+    object-fit: contain;
+    box-shadow: 0 1.8rem 7rem rgba(0, 0, 0, 0.35);
+  }
+
+  .project-lightbox-caption {
+    justify-self: start;
+    max-width: 72ch;
+    margin-top: 0.9rem;
+    color: var(--beige);
+    font-family: var(--font-body);
+    font-size: var(--type-caption);
+    opacity: 0.78;
+  }
+
+  .project-lightbox-close,
+  .project-lightbox-arrow {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--beige);
+    cursor: pointer;
+  }
+
+  .project-lightbox-close {
+    position: fixed;
+    top: clamp(1.6rem, 3vw, 3rem);
+    right: clamp(1.6rem, 3vw, 3rem);
+    width: 3.4rem;
+    height: 3.4rem;
+  }
+
+  .project-lightbox-close span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.7rem;
+    height: 0.14rem;
+    background: currentColor;
+    transform-origin: center;
+  }
+
+  .project-lightbox-close span:first-child {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .project-lightbox-close span:last-child {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  .project-lightbox-arrow {
+    position: fixed;
+    top: 50%;
+    width: 4rem;
+    height: 4rem;
+    transform: translateY(-50%);
+    font-family: var(--font-body);
+    font-size: clamp(3.4rem, 4vw, 5rem);
+    font-weight: 300;
+    line-height: 0.75;
+  }
+
+  .project-lightbox-arrow--prev {
+    left: clamp(1.4rem, 3.2vw, 4rem);
+  }
+
+  .project-lightbox-arrow--next {
+    right: clamp(1.4rem, 3.2vw, 4rem);
+  }
+
+  .project-lightbox-counter {
+    position: fixed;
+    left: 50%;
+    bottom: clamp(1.55rem, 3vw, 3rem);
+    transform: translateX(-50%);
+    margin: 0;
+    color: var(--beige);
+    font-family: var(--font-body);
+    font-size: clamp(0.95rem, 1vw, 1.15rem);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .project-lightbox-close:hover,
+  .project-lightbox-arrow:hover {
+    opacity: 0.72;
+  }
+
+  .project-lightbox-close:focus-visible,
+  .project-lightbox-arrow:focus-visible {
+    outline: 2px solid var(--beige);
+    outline-offset: 0.35rem;
+  }
+
+  /* ==========================================================
      RESPONSIVE
      ========================================================== */
   @media (max-width: 960px) {
@@ -477,6 +802,25 @@ const nextWork =
     .next-project-link {
       grid-column: 1;
       justify-self: start;
+    }
+    .project-lightbox {
+      padding: 5rem 1.2rem;
+    }
+    .project-lightbox-figure,
+    .project-lightbox-image {
+      max-width: 92vw;
+      max-height: 72vh;
+    }
+    .project-lightbox-arrow {
+      top: auto;
+      bottom: 1.15rem;
+      transform: none;
+    }
+    .project-lightbox-arrow--prev {
+      left: 1.2rem;
+    }
+    .project-lightbox-arrow--next {
+      right: 1.2rem;
     }
   }
 </style>

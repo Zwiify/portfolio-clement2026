@@ -1,17 +1,21 @@
 import type { GalleryItem, WorkPageContent } from "./types";
 
 export const workIndex = [
-  { slug: "projet-de-fin-d-annee", title: "Projet de fin d'année" },
-  { slug: "design-graphique", title: "Design Graphique" },
-  { slug: "dessin-d-intention", title: "Dessin d'intention" },
-  { slug: "typographie-et-mise-en-page", title: "Typographie & Mise en page" },
-  { slug: "packaging", title: "Packaging" },
-  { slug: "perspective", title: "Perspective" },
-  { slug: "modele-vivant", title: "Modèle vivant" },
-  { slug: "croquis-d-exterieur", title: "Croquis d'extérieur" },
-  { slug: "workshops", title: "Workshops" },
-  { slug: "dessin-d-analyse", title: "Dessin d'analyse" },
-  { slug: "personnel", title: "Personnel" },
+  { slug: "projet-de-fin-d-annee", title: "Projet de fin d'année", preview: "" },
+  { slug: "design-graphique", title: "Design Graphique", preview: "/images/work-previews/design-graphique.webp" },
+  { slug: "dessin-d-intention", title: "Dessin d'intention", preview: "/images/work-previews/dessin-d-intention.webp" },
+  {
+    slug: "typographie-et-mise-en-page",
+    title: "Typographie & Mise en page",
+    preview: "/images/work-previews/typographie-et-mise-en-page.webp",
+  },
+  { slug: "packaging", title: "Packaging", preview: "/images/work-previews/packaging.webp" },
+  { slug: "perspective", title: "Perspective", preview: "/images/work-previews/perspective.webp" },
+  { slug: "modele-vivant", title: "Modèle vivant", preview: "/images/work-previews/modele-vivant.webp" },
+  { slug: "croquis-d-exterieur", title: "Croquis d'extérieur", preview: "/images/work-previews/croquis-d-exterieur.webp" },
+  { slug: "workshops", title: "Workshops", preview: "/images/work-previews/workshops.webp" },
+  { slug: "dessin-d-analyse", title: "Dessin d'analyse", preview: "/images/work-previews/dessin-d-analyse.webp" },
+  { slug: "personnel", title: "Personnel", preview: "/images/work-previews/personnel.webp" },
 ];
 
 const gallery = (altBase: string, paths: string[] = ["", ""]): GalleryItem[] =>
@@ -37,7 +41,7 @@ export const workPages: Record<string, WorkPageContent> = {
       {
         title: "WHITEOUT",
         description:
-          "WHITEOUT est un projet autour du blanc comme signal d'alerte. À partir de la couleur “Cloud Dancer”, j'ai voulu déplacer l'image douce et rassurante du blanc vers quelque chose de plus inquiétant : une trace d'effacement, de disparition et de dérèglement. Le projet s'articule autour de trois environnements — la mer, le sol et la forêt — qui se transforment progressivement. L'objectif n'est pas de produire un discours documentaire, mais une expérience sensible : faire ressentir avant d'expliquer.",
+          "WHITEOUT part d'une idée assez simple : utiliser le blanc, non pas comme quelque chose de pur ou de calme, mais comme un signe d'effacement. À partir de la couleur “Cloud Dancer”, j'ai construit un univers autour de trois milieux — la mer, le sol et la forêt — qui disparaissent ou se dérèglent petit à petit. Je voulais surtout créer une sensation, quelque chose d'un peu froid et inquiétant, avant même d'être explicatif.",
         images: gallery("WHITEOUT"),
       },
     ],
@@ -47,25 +51,35 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "design-graphique",
     title: "Design Graphique",
     description: "Travaux de design graphique — affiches, identités et compositions éditoriales. Clément Jorge, 2026.",
-    heroImage: heroImage("Design Graphique"),
+    heroImage: heroImage("Design Graphique", "/images/work/design-graphique/hero.webp"),
     sections: [
       {
         title: "Découpe papier — Carte postale & Persona",
         description:
-          "Ces deux projets explorent le passage du dessin vectoriel à la découpe papier. La carte postale raconte un souvenir de vacances à travers des formes simples, tandis que Persona fonctionne comme un autoportrait graphique autour de la guitare. Dans les deux cas, Illustrator m'a permis de construire l'image avant de la traduire physiquement en papier découpé, avec une attention particulière portée aux aplats, aux contrastes et à la lisibilité.",
-        images: gallery("Découpe papier"),
+          "Ces deux projets mélangent image numérique et découpe papier. La carte postale raconte un souvenir de vacances à Samoëns, avec une scène assez simple autour de la montagne et des bouquetins. Persona est plus personnel, comme un autoportrait autour de la guitare. J'ai d'abord composé les images sur Illustrator, puis je les ai refaites en papier découpé, ce qui donne un rendu plus manuel et moins parfait.",
+        images: gallery("Découpe papier", [
+          "/images/work/design-graphique/decoupe-papier-01.webp",
+          "/images/work/design-graphique/decoupe-papier-02.webp",
+        ]),
       },
       {
         title: "Matrix — Follow the White Rabbit",
         description:
-          "Cette affiche typographique est inspirée de l'univers de Matrix. Plutôt que d'illustrer directement le film, j'ai choisi de partir d'une phrase culte : “Follow the white rabbit”. La typographie devient une architecture massive, presque un signal à décoder, entre affiche de film, texture numérique et message caché.",
-        images: gallery("Matrix"),
+          "Pour cette affiche, je suis parti de la phrase “Follow the white rabbit”, plutôt que de représenter directement Matrix. J'ai voulu que la typographie devienne presque une image en elle-même, très dense, comme un message à décoder. Le côté massif, sombre et texturé permet de retrouver quelque chose de l'univers du film sans passer par une illustration classique.",
+        images: gallery("Matrix", [
+          "/images/work/design-graphique/matrix-01.webp",
+        ]),
       },
       {
         title: "Almost Lost Files — Print Japan",
         description:
-          "Almost Lost Files est un projet d'édition photographique autour de mon voyage au Japon. J'ai choisi de raconter ce voyage uniquement à travers les photos de nourriture prises avec mon téléphone, puis retravaillées sur Lightroom pour harmoniser l'ensemble. Le projet transforme une archive personnelle et spontanée en objet éditorial, entre carnet de voyage, collection d'images et mémoire fragmentée.",
-        images: gallery("Almost Lost Files"),
+          "Almost Lost Files est une petite édition autour de mon voyage au Japon. J'ai choisi de ne montrer le voyage qu'à travers des photos de nourriture prises avec mon téléphone. Les images ont ensuite été retravaillées sur Lightroom pour créer une ambiance plus homogène. Le projet ressemble un peu à une archive personnelle : des souvenirs simples, presque banals, mais qui racontent beaucoup.",
+        images: gallery("Almost Lost Files", [
+          "/images/work/design-graphique/almost-lost-files-01.webp",
+          "/images/work/design-graphique/almost-lost-files-02.webp",
+          "/images/work/design-graphique/almost-lost-files-03.webp",
+          "/images/work/design-graphique/almost-lost-files-04.webp",
+        ]),
       },
     ],
   },
@@ -74,31 +88,41 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "dessin-d-intention",
     title: "Dessin d'intention",
     description: "Travaux de dessin d'intention — roughs, stands, scènes et préparation éditoriale. Clément Jorge, 2026.",
-    heroImage: heroImage("Dessin d'intention"),
+    heroImage: heroImage("Dessin d'intention", "/images/work/dessin-d-intention/hero.webp"),
     sections: [
       {
         title: "Mise en page en croquis — Arcane & Jean",
         description:
-          "Ces exercices utilisent le dessin comme outil de préparation éditoriale. À partir de textes et d'images imposés, il fallait imaginer des doubles pages en croquis avant toute réalisation numérique. Le projet Arcane travaillait une ambiance narrative et visuelle forte, tandis que le sujet sur le jean demandait une direction plus mode. Dans les deux cas, les roughs permettent de tester le titre, le rythme, la hiérarchie, le rapport texte-image et la circulation du regard.",
-        images: gallery("Mise en page en croquis"),
+          "Ces exercices m'ont permis de travailler la mise en page avant de passer à l'ordinateur. À partir de sujets imposés, il fallait chercher rapidement des compositions, tester les titres, les images, les blocs de texte et le rythme général. Arcane amenait une ambiance plus narrative et illustrée, tandis que le sujet sur le jean était plus proche d'une mise en page mode. Les roughs servent surtout à réfléchir vite, sans se bloquer sur le rendu final.",
+        images: gallery("Mise en page en croquis", [
+          "/images/work/dessin-d-intention/arcane-jean-01.webp",
+          "/images/work/dessin-d-intention/arcane-jean-02.webp",
+        ]),
       },
       {
         title: "Stand PS5",
         description:
-          "Ce projet consistait à imaginer un stand de 4 mètres par 4 mètres autour de l'univers de la PS5. La contrainte de taille imposait de concevoir un espace compact, lisible et immersif. J'ai travaillé le stand comme une scène : un lieu capable d'attirer le regard, de guider la circulation et de faire exister l'expérience de la console.",
-        images: gallery("Stand PS5"),
+          "Le sujet était d'imaginer un stand PS5 dans un espace limité à 4 mètres par 4 mètres. J'ai essayé de penser le stand comme un petit espace immersif, visible rapidement et facile à comprendre. La contrainte de taille m'a obligé à aller à l'essentiel : une forme forte, une circulation simple et une mise en scène claire de l'univers PlayStation.",
+        images: gallery("Stand PS5", [
+          "/images/work/dessin-d-intention/stand-ps5-01.webp",
+        ]),
       },
       {
         title: "Roughs de shooting — Mode & Bêtises",
         description:
-          "Ces projets demandaient de préparer des prises de vue à travers des roughs. Le premier sujet partait d'un mannequin, d'une tenue, d'accessoires et d'un décor imposés ; le second imaginait des scènes pour une collection enfant sur le thème des bêtises. Le dessin sert ici à anticiper une image photographique : cadrage, posture, décor, énergie, saison, styling et intention générale.",
-        images: gallery("Roughs de shooting"),
+          "Ces projets consistaient à préparer des shootings avec des croquis. Pour le sujet mode, il fallait composer à partir d'un mannequin, d'une tenue et d'un décor imposés. Pour Bêtises, il fallait imaginer des scènes autour d'une collection enfant. J'ai surtout travaillé le cadrage, les attitudes et l'ambiance, comme si le dessin servait de brouillon avant la photo.",
+        images: gallery("Roughs de shooting", [
+          "/images/work/dessin-d-intention/roughs-shooting-01.webp",
+          "/images/work/dessin-d-intention/roughs-shooting-02.webp",
+        ]),
       },
       {
         title: "Super-héros au quotidien",
         description:
-          "Ce brief proposait de confronter un super-héros générique à une corvée banale du quotidien. L'humour vient du décalage entre la puissance du personnage et la trivialité de la situation. J'ai cherché à garder une scène simple, lisible et absurde, où le héros reste sérieux pendant que le contexte crée le gag.",
-        images: gallery("Super-héros au quotidien"),
+          "Pour ce sujet, il fallait imaginer un super-héros dans une situation banale. J'ai choisi de jouer sur le contraste entre un personnage très puissant et une action minuscule, presque ridicule. Ce qui m'intéressait, c'était le décalage : garder les codes du super-héros, mais les mettre dans un moment beaucoup plus quotidien.",
+        images: gallery("Super-héros au quotidien", [
+          "/images/work/dessin-d-intention/super-heros-01.webp",
+        ]),
       },
     ],
   },
@@ -107,37 +131,49 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "typographie-et-mise-en-page",
     title: "Typographie & Mise en page",
     description: "Travaux de typographie, édition et mise en page. Clément Jorge, 2026.",
-    heroImage: heroImage("Typographie & Mise en page"),
+    heroImage: heroImage("Typographie & Mise en page", "/images/work/typographie-et-mise-en-page/hero.webp"),
     sections: [
       {
         title: "Planche de calligraphie",
         description:
-          "Cette planche de calligraphie repose sur une liste de noms de fromages français. L'exercice demandait de remplir une planche A3 avec une direction graphique cohérente, en travaillant le geste, le rythme et la régularité de l'écriture. J'ai choisi une écriture dense et expressive, où les mots longs, courts et accentués créent naturellement des variations.",
-        images: gallery("Planche de calligraphie"),
+          "Cette planche est construite à partir de noms de fromages français. L'exercice était assez simple dans la consigne, mais difficile dans le geste : garder une écriture régulière, lisible, tout en acceptant les petites irrégularités de la main. Les mots longs, courts et accentués créent naturellement du rythme dans la page.",
+        images: gallery("Planche de calligraphie", [
+          "/images/work/typographie-et-mise-en-page/calligraphie-01.webp",
+        ]),
       },
       {
         title: "Mise en page — Beatles",
         description:
-          "Ce projet a été réalisé au fil des cours d'InDesign, à partir d'un article sur les Beatles. L'objectif était d'apprendre les bases de la mise en page : colonnes, marges, hiérarchie typographique, placement des images et rythme de lecture. Il m'a permis de comprendre qu'une page se construit comme un parcours, et pas seulement comme un assemblage de texte et d'images.",
-        images: gallery("Mise en page Beatles"),
+          "Ce projet a été réalisé pendant les cours d'InDesign, à partir d'un article sur les Beatles. Il m'a surtout servi à comprendre les bases de la mise en page : colonnes, marges, hiérarchie, images, titres et rythme de lecture. J'ai appris qu'une page ne se remplit pas simplement avec du texte, elle se construit pour guider le regard.",
+        images: gallery("Mise en page Beatles", [
+          "/images/work/typographie-et-mise-en-page/beatles-01.webp",
+          "/images/work/typographie-et-mise-en-page/beatles-02.webp",
+        ]),
       },
       {
-        title: "Carnet à Vide — Lipogramme",
+        title: "Specimen Typographique Valve",
         description:
-          "Carnet à Vide est un projet éditorial construit autour d'une contrainte d'écriture : un lipogramme sans la lettre “O”. J'ai choisi de rendre cette absence visible par un vide circulaire qui traverse la couverture et les doubles pages. Ce qui disparaît dans le texte devient une forme physique dans le livre.",
-        images: gallery("Carnet à Vide"),
+          "Valve est une typographie stencil construite avec des formes assez géométriques et des coupes franches. Le specimen m'a permis de la tester dans une vraie mise en page, avec différentes tailles, différents rythmes et plusieurs niveaux de lecture. Je voulais que la typo garde un côté industriel, mais qu'elle reste utilisable et pas seulement décorative.",
+        images: gallery("Specimen Typographique Valve", [
+          "/images/work/typographie-et-mise-en-page/valve-01.webp",
+        ]),
       },
       {
-        title: "Recherches typographiques — Valve & mot sous contraintes",
+        title: "Typographie sous contraintes — Mandragore",
         description:
-          "Ces projets explorent la création de caractères à différentes échelles. Valve est une famille stencil construite autour de coupes franches, d'une structure géométrique et d'une tension industrielle. Le mot typographique sous contraintes travaillait une autre logique : imaginer une typo regular, serif courbée et extra condensée, mais pensée comme un caractère utilisable au quotidien plutôt qu'une simple typo display.",
-        images: gallery("Recherches typographiques"),
+          "Mandragore est une recherche typographique avec plusieurs contraintes : une typo regular, serif courbée et extra condensée. Le but n'était pas de créer une typo très spectaculaire, mais plutôt d'imaginer un caractère qui pourrait fonctionner dans un usage plus quotidien. J'ai travaillé les proportions, les courbes et la lisibilité pour trouver un équilibre entre contrainte et personnalité.",
+        images: gallery("Typographie sous contraintes Mandragore", [
+          "/images/work/typographie-et-mise-en-page/mandragore-01.webp",
+          "/images/work/typographie-et-mise-en-page/mandragore-02.webp",
+        ]),
       },
       {
         title: "PTYPOTINS — Affiche d'exposition typographique",
         description:
-          "Cette affiche a été réalisée pour l'exposition typographique éphémère des B1 Design et Archi. La consigne demandait de créer un titrage à partir d'une typographie existante, puis de composer une affiche A3 avec les informations imposées. J'ai utilisé Blender pour mettre en scène une théière recouverte de stickers typographiques et contrôler l'éclairage, la matière et le point de vue.",
-        images: gallery("PTYPOTINS"),
+          "Pour cette affiche, il fallait créer une proposition autour d'une exposition typographique éphémère. J'ai choisi de mettre en scène une théière couverte de stickers typographiques. La théière a été placée dans Blender pour mieux gérer le volume, l'éclairage et le point de vue. Ça m'a permis d'avoir une image plus construite qu'un simple montage à plat.",
+        images: gallery("PTYPOTINS", [
+          "/images/work/typographie-et-mise-en-page/ptypotins-01.webp",
+        ]),
       },
     ],
   },
@@ -146,25 +182,34 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "packaging",
     title: "Packaging",
     description: "Travaux de packaging — chocolat, sauce piquante et glace. Clément Jorge, 2026.",
-    heroImage: heroImage("Packaging"),
+    heroImage: heroImage("Packaging", "/images/work/packaging/hero.webp"),
     sections: [
       {
         title: "Chocolat Saint-Valentin — Love Tarot",
         description:
-          "Ce projet consistait à créer un packaging de chocolat pour la Saint-Valentin, avec un élément de surprise à l'intérieur. J'ai choisi de construire l'univers autour du tarot amoureux : une boîte de chocolat qui contient aussi une carte, comme un petit rituel à offrir. Le projet mélange les codes du chocolat, du jeu et de l'objet sentimental.",
-        images: gallery("Love Tarot"),
+          "Ce packaging de chocolat est pensé comme un petit objet à offrir pour la Saint-Valentin. J'ai mélangé l'idée du chocolat avec celle d'une carte de tarot, comme si chaque boîte contenait aussi un message ou un mini rituel. L'univers est volontairement coloré, affectif et un peu naïf, pour garder quelque chose de léger et généreux.",
+        images: gallery("Love Tarot", [
+          "/images/work/packaging/love-tarot-01.webp",
+          "/images/work/packaging/love-tarot-02.webp",
+        ]),
       },
       {
         title: "Paper Art — Hot Sauce Puntaca",
         description:
-          "Ce projet part d'un objet en paper art : des piments réalisés à la main, puis photographiés et utilisés comme base d'un packaging. J'ai choisi de transformer cet objet en identité pour une sauce piquante à l'Espelette. Le piment devient un signe simple et direct, porté par une composition frontale, chaude et immédiatement identifiable.",
-        images: gallery("Hot Sauce Puntaca"),
+          "Ce projet part d'un piment réalisé en paper art, ensuite photographié et transformé en élément principal du packaging. J'ai imaginé une sauce piquante à l'Espelette, avec une identité très directe : couleurs chaudes, typographie visible et composition frontale. Le but était que le produit soit compréhensible tout de suite, sans trop d'explication.",
+        images: gallery("Hot Sauce Puntaca", [
+          "/images/work/packaging/puntaca-01.webp",
+          "/images/work/packaging/puntaca-02.webp",
+        ]),
       },
       {
         title: "Lettering — Ice Cream Edel",
         description:
-          "Edel est un projet de packaging pour une marque de glace inventée. La consigne demandait de créer un nom, un logo dessiné à la main, puis de l'appliquer sur un pot de glace. J'ai choisi une direction sobre et élégante, autour d'une glace à la vanille, avec une palette douce et une identité calme, fraîche et légèrement premium.",
-        images: gallery("Ice Cream Edel"),
+          "Edel est une marque de glace inventée autour d'un lettering dessiné à la main. J'ai choisi une direction plus sobre, presque silencieuse, avec une glace à la vanille et des visuels assez serrés. Le projet joue davantage sur la matière, le froid, les textures et une forme d'élégance simple.",
+        images: gallery("Ice Cream Edel", [
+          "/images/work/packaging/edel-01.webp",
+          "/images/work/packaging/edel-02.webp",
+        ]),
       },
     ],
   },
@@ -173,13 +218,18 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "perspective",
     title: "Perspective",
     description: "Travaux de perspective — systèmes spatiaux et construction du regard. Clément Jorge, 2026.",
-    heroImage: heroImage("Perspective"),
+    heroImage: heroImage("Perspective", "/images/work/perspective/hero.webp"),
     sections: [
       {
         title: "Systèmes de perspective",
         description:
-          "Cette série rassemble plusieurs exercices de construction spatiale : perspective à trois points de fuite, isométrie et perspective à cinq points de fuite. Chaque système propose une manière différente de représenter l'espace : la hauteur et la tension verticale, la construction stable et presque cartographique, puis la déformation immersive proche du fisheye. L'ensemble m'a permis de travailler la rigueur du volume, la profondeur et le point de vue.",
-        images: gallery("Systèmes de perspective"),
+          "Cette série regroupe plusieurs exercices de perspective : trois points de fuite, isométrie et cinq points de fuite. Chaque dessin aborde l'espace d'une manière différente, entre construction rigoureuse, profondeur et déformation plus immersive. Ces exercices m'ont surtout aidé à mieux comprendre comment construire un volume et choisir un point de vue.",
+        images: gallery("Systèmes de perspective", [
+          "/images/work/perspective/perspective-2pf.webp",
+          "/images/work/perspective/perspective-3pf.webp",
+          "/images/work/perspective/perspective-isometrique.webp",
+          "/images/work/perspective/perspective-5pf.webp",
+        ]),
       },
     ],
   },
@@ -188,13 +238,15 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "modele-vivant",
     title: "Modèle vivant",
     description: "Sélection de dessins de modèle vivant. Clément Jorge, 2026.",
-    heroImage: heroImage("Modèle vivant"),
+    heroImage: heroImage("Modèle vivant", "/images/work/modele-vivant/hero.webp"),
     sections: [
       {
         title: "Sélection modèle vivant",
         description:
-          "Cette sélection rassemble les dessins de modèle vivant les plus justes ou les plus intéressants de l'année. Certains sont rapides et gardent l'énergie du geste, d'autres sont plus construits, avec davantage d'attention portée aux proportions, aux volumes et aux appuis. Le modèle vivant m'a permis de mieux comprendre le corps comme une structure en mouvement.",
-        images: gallery("Sélection modèle vivant"),
+          "Cette sélection regroupe plusieurs dessins réalisés en modèle vivant pendant l'année. Certains sont rapides, d'autres plus posés, mais tous m'ont aidé à mieux comprendre les proportions, les appuis et les lignes du corps. Le plus intéressant pour moi était de capter une posture sans forcément tout détailler.",
+        images: gallery("Sélection modèle vivant", [
+          "/images/work/modele-vivant/selection-01.webp",
+        ]),
       },
     ],
   },
@@ -203,25 +255,42 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "croquis-d-exterieur",
     title: "Croquis d'extérieur",
     description: "Croquis d'extérieur — observation, architecture, objets et lieux. Clément Jorge, 2026.",
-    heroImage: heroImage("Croquis d'extérieur"),
+    heroImage: heroImage("Croquis d'extérieur", "/images/work/croquis-d-exterieur/hero.webp"),
     sections: [
       {
         title: "Carnet Charles de Gaulle",
         description:
-          "Ce carnet rassemble des croquis réalisés à la Maison natale de Charles de Gaulle. L'objectif était d'observer un lieu réel à travers ses objets, ses intérieurs, ses détails et ses atmosphères. Le dessin devient ici une manière de sélectionner : une chaise, un meuble, une fenêtre ou une couleur peuvent suffire à raconter un espace.",
-        images: gallery("Carnet Charles de Gaulle"),
+          "Ce carnet a été réalisé à la Maison natale de Charles de Gaulle, à Lille. J'ai dessiné les lieux, les objets et certains détails de l'intérieur, puis j'ai ajouté de courts textes pour accompagner les images. Je voulais que le carnet ne soit pas seulement une suite de croquis, mais aussi une petite narration du lieu.",
+        images: gallery("Carnet Charles de Gaulle", [
+          "/images/work/croquis-d-exterieur/charles-de-gaulle-01.webp",
+          "/images/work/croquis-d-exterieur/charles-de-gaulle-02.webp",
+        ]),
       },
       {
-        title: "Croquis urbains & lieux d'observation",
+        title: "Croquis citadelle",
         description:
-          "Cette série regroupe plusieurs séances de croquis extérieur : personnes dessinées dans la gare, dessin long à Lille-Flandres, Palais des Beaux-Arts, Citadelle et Porte de Paris. Chaque lieu impose un rapport différent au temps et à l'observation : saisir rapidement une silhouette en mouvement, construire une architecture sur trois heures ou traduire une ambiance par la couleur.",
-        images: gallery("Croquis urbains"),
+          "Ce croquis de la Citadelle m'a permis de travailler un espace extérieur plus large, avec de la végétation, des structures et de la profondeur. L'aquarelle m'a aidé à poser rapidement les masses de couleur, sans chercher un rendu trop précis. Je voulais garder le côté vivant du dessin sur place.",
+        images: gallery("Croquis citadelle", [
+          "/images/work/croquis-d-exterieur/citadelle-01.webp",
+          "/images/work/croquis-d-exterieur/citadelle-02.webp",
+        ]),
       },
       {
-        title: "Objets & fragments",
+        title: "Croquis Palais des Beaux-Arts",
         description:
-          "Cette série rassemble des croquis rapides d'objets observés sur place. L'enjeu était de capter une forme, un volume ou une silhouette sans chercher un rendu trop fini. Ces dessins fonctionnent comme des notes visuelles, utiles pour entraîner le regard et apprendre à simplifier.",
-        images: gallery("Objets et fragments"),
+          "Au Palais des Beaux-Arts, j'ai travaillé un espace plus architectural, avec beaucoup de lignes, de statues et de lumière. Le passage à l'aquarelle m'a permis de sortir d'un dessin trop rigide et de mieux traduire l'ambiance du lieu, notamment les contrastes entre ombre et lumière.",
+        images: gallery("Croquis Palais des Beaux-Arts", [
+          "/images/work/croquis-d-exterieur/palais-beaux-arts-01.webp",
+          "/images/work/croquis-d-exterieur/palais-beaux-arts-02.webp",
+        ]),
+      },
+      {
+        title: "Croquis gare",
+        description:
+          "Les croquis en gare sont plus rapides et plus directs. Les gens bougent, les trains arrivent, les scènes changent vite. Il faut donc aller à l'essentiel : une silhouette, une posture, une ligne de perspective, un détail. C'est un exercice utile pour apprendre à observer sans vouloir tout contrôler.",
+        images: gallery("Croquis gare", [
+          "/images/work/croquis-d-exterieur/gare-01.webp",
+        ]),
       },
     ],
   },
@@ -230,25 +299,42 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "workshops",
     title: "Workshops",
     description: "Workshops — linogravure, scénographie et photographie argentique. Clément Jorge, 2026.",
-    heroImage: heroImage("Workshops"),
+    heroImage: heroImage("Workshops", "/images/work/workshops/hero.webp"),
     sections: [
       {
         title: "Linogravure — Potion d'invisibilité",
         description:
-          "Ce workshop de linogravure avait pour thème la fantaisie et les créatures. J'ai choisi de travailler autour d'une recette de potion d'invisibilité, comme un fragment de grimoire ou un objet issu d'un monde magique. La linogravure impose une image directe, contrastée, pensée en noir et blanc.",
-        images: gallery("Linogravure"),
+          "Pour ce workshop de linogravure, le thème était la fantaisie et les créatures. J'ai imaginé une recette de potion d'invisibilité, comme une page de grimoire. La gravure oblige à simplifier les formes et à penser en noir et blanc, ce qui rend le dessin plus direct et plus graphique.",
+        images: gallery("Linogravure", [
+          "/images/work/workshops/linogravure-01.webp",
+          "/images/work/workshops/linogravure-02.webp",
+        ]),
       },
       {
         title: "HUMBLE — Workshop scénographie",
         description:
-          "HUMBLE est un projet d'exposition collective imaginé pour présenter les travaux des B1 Design Graphique et Architecture. Le concept du groupe reposait sur l'univers du jazz bar : une ambiance sombre, feutrée et premium, pensée pour donner aux projets étudiants le statut d'œuvres exposées. Dans ce projet, j'ai réalisé certains supports graphiques, comme le menu des boissons et les tickets, mais mon rôle principal s'est concentré sur le site Figma et la modélisation 3D du lieu.",
-        images: gallery("HUMBLE"),
+          "HUMBLE est un projet d'exposition collective réalisé avec des étudiants en design graphique et en architecture. Le groupe a imaginé une ambiance de jazz bar, sombre et feutrée, pour présenter les travaux étudiants autrement. J'ai travaillé sur certains supports graphiques comme les tickets et le menu, mais surtout sur le site Figma et la modélisation 3D du lieu, pour aider à visualiser l'espace et le parcours.",
+        images: gallery("HUMBLE", [
+          "/images/work/workshops/humble-01.webp",
+          "/images/work/workshops/humble-02.webp",
+          "/images/work/workshops/humble-03.webp",
+          "/images/work/workshops/humble-04.webp",
+          "/images/work/workshops/humble-05.webp",
+          "/images/work/workshops/humble-06.webp",
+          "/images/work/workshops/humble-07.webp",
+          "/images/work/workshops/humble-08.webp",
+          "/images/work/workshops/humble-09.webp",
+          "/images/work/workshops/humble-10.webp",
+        ]),
       },
       {
         title: "Photographie argentique",
         description:
-          "Ce workshop m'a permis d'expérimenter la photographie argentique, de la prise de vue au développement. Contrairement au numérique, l'argentique impose une autre relation à l'image : moins immédiate, plus lente, plus incertaine. Le projet m'a intéressé pour cette part d'accident, de grain, de contraste et d'attente.",
-        images: gallery("Photographie argentique"),
+          "Ce workshop m'a permis de découvrir la photographie argentique, de la prise de vue au développement. Ce que j'ai aimé, c'est le côté moins immédiat que le numérique : on ne contrôle pas tout, on attend, et parfois les accidents font partie de l'image. Le grain, les flous et les contrastes donnent une présence particulière aux photos.",
+        images: gallery("Photographie argentique", [
+          "/images/work/workshops/argentique-01.webp",
+          "/images/work/workshops/argentique-02.webp",
+        ]),
       },
     ],
   },
@@ -257,13 +343,18 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "dessin-d-analyse",
     title: "Dessin d'analyse",
     description: "Dessin d'analyse — objets, matières, volumes et observation. Clément Jorge, 2026.",
-    heroImage: heroImage("Dessin d'analyse"),
+    heroImage: heroImage("Dessin d'analyse", "/images/work/dessin-d-analyse/hero.webp"),
     sections: [
       {
         title: "Études d'observation — Objets, matières, volumes",
         description:
-          "Cette série rassemble plusieurs exercices de dessin d'analyse : brocs en couleur, bûches, buste de couture en cuir et vases inox. Chaque sujet demandait une attention différente : proportions, volumes, reflets, textures, rigidité ou matière organique. L'ensemble montre un travail d'observation patient, où il faut comprendre la forme avant de chercher le rendu.",
-        images: gallery("Études d'observation"),
+          "Cette série rassemble plusieurs exercices d'observation : brocs, bûches, buste de couture en cuir et vases en inox. Chaque sujet demandait une attention différente, entre volumes, matières, reflets, ombres et proportions. Ces exercices m'ont appris à prendre plus de temps pour comprendre ce que je dessine, avant de chercher à faire un rendu propre.",
+        images: gallery("Études d'observation", [
+          "/images/work/dessin-d-analyse/observation-01.webp",
+          "/images/work/dessin-d-analyse/observation-02.webp",
+          "/images/work/dessin-d-analyse/observation-03.webp",
+          "/images/work/dessin-d-analyse/observation-04.webp",
+        ]),
       },
     ],
   },
@@ -272,25 +363,32 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "personnel",
     title: "Personnel",
     description: "Projets personnels — jeu vidéo, 3D et sound design. Clément Jorge.",
-    heroImage: heroImage("Personnel"),
+    heroImage: heroImage("Personnel", "/images/work/personnel/hero.webp"),
     sections: [
       {
         title: "Zanuzinzins: The Key of Bravery",
         description:
-          "Zanuzinzins: The Key of Bravery est un jeu réalisé en groupe pour l'anniversaire d'un ami. Je me suis occupé du game design, du code et de l'intégration Unity, tandis que les autres membres du groupe travaillaient principalement sur les visuels. Mon rôle était aussi de coordonner le projet, de définir les besoins et de faire le lien entre les idées et leur réalisation dans le jeu.",
-        images: gallery("Zanuzinzins"),
+          "Zanuzinzins: The Key of Bravery est un jeu vidéo réalisé en groupe pour l'anniversaire d'un ami. Je me suis occupé du game design, du code et de l'intégration dans Unity. Les autres membres du groupe travaillaient surtout sur les visuels, mais je faisais aussi le lien entre les idées, les besoins d'UI, les intentions de gameplay et ce qu'il fallait intégrer dans le jeu.",
       },
       {
         title: "Mass blocking — Point & click",
         description:
-          "Ce projet consistait à aider à la conception de backgrounds pour un jeu en point & click, à travers du mass blocking réalisé sur Blender. L'objectif était de poser rapidement les grands volumes, la profondeur et les zones importantes avant le travail de détail. Cette étape permet de vérifier la lisibilité d'un décor : circulation du regard, cadrage, hiérarchie des plans et masses principales.",
-        images: gallery("Mass blocking"),
+          "Ce projet consistait à préparer des décors pour un jeu en point & click avec du mass blocking sur Blender. Le but était de poser rapidement les volumes principaux, la profondeur et les zones importantes avant de passer au détail. C'est une étape que j'aime bien, parce qu'elle permet de comprendre très vite si un décor fonctionne ou non.",
+        images: gallery("Mass blocking", [
+          "/images/work/personnel/mass-blocking-01.webp",
+          "/images/work/personnel/mass-blocking-02.webp",
+          "/images/work/personnel/mass-blocking-03.webp",
+          "/images/work/personnel/mass-blocking-04.webp",
+          "/images/work/personnel/mass-blocking-05.webp",
+          "/images/work/personnel/mass-blocking-06.webp",
+          "/images/work/personnel/mass-blocking-07.webp",
+          "/images/work/personnel/mass-blocking-08.webp",
+        ]),
       },
       {
         title: "Sound design — Versipellis & Après la mer",
         description:
-          "Ces deux projets m'ont permis de travailler le sound design pour des courts métrages réalisés par des étudiants de Rubika. Sur Versipellis, court métrage de fin d'études, il fallait construire une ambiance sonore autour de la nature, de la tension, du corps et de la transformation. Sur Après la mer, court métrage de deuxième année, le travail portait davantage sur l'accompagnement des ambiances, des actions et des transitions. Dans les deux cas, le son devient une matière narrative à part entière.",
-        images: gallery("Sound design"),
+          "Ces deux projets m'ont permis de travailler le sound design pour des courts métrages étudiants réalisés à Rubika. Sur Versipellis, le son devait accompagner une ambiance plus organique, tendue et liée à la transformation. Sur Après la mer, le travail était plus discret, davantage centré sur les ambiances et les transitions. Dans les deux cas, j'ai aimé construire une narration qui ne passe pas seulement par l'image.",
       },
     ],
   },

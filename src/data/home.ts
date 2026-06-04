@@ -25,7 +25,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "Design Graphique",
     href: "/work/design-graphique",
     image: {
-      src: "",
+      src: "/images/home/design-graphique.webp",
       alt: "Aperçu Design Graphique",
     },
   },
@@ -34,7 +34,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "Workshops",
     href: "/work/workshops",
     image: {
-      src: "",
+      src: "/images/home/workshops.webp",
       alt: "Aperçu Workshops",
     },
   },
@@ -43,7 +43,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "Croquis d'extérieur",
     href: "/work/croquis-d-exterieur",
     image: {
-      src: "",
+      src: "/images/home/croquis-d-exterieur.webp",
       alt: "Aperçu Croquis d'extérieur",
     },
   },
@@ -61,7 +61,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "Typographie & Mise en page",
     href: "/work/typographie-et-mise-en-page",
     image: {
-      src: "",
+      src: "/images/home/typographie-et-mise-en-page.webp",
       alt: "Aperçu Typographie et mise en page",
     },
   },
@@ -70,7 +70,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "Modèle Vivant",
     href: "/work/modele-vivant",
     image: {
-      src: "",
+      src: "/images/home/modele-vivant.webp",
       alt: "Aperçu Modèle vivant",
     },
   },
@@ -79,7 +79,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "Packaging",
     href: "/work/packaging",
     image: {
-      src: "",
+      src: "/images/home/packaging.webp",
       alt: "Aperçu Packaging",
     },
   },
@@ -87,7 +87,7 @@ export const featuredProjects: FeaturedProject[] = [
 
 export const aboutContent = {
   portrait: {
-    src: "",
+    src: "/images/about/portrait.webp",
     alt: "Portrait de Clément Jorge",
   },
   timeline: [

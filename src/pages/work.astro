@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import MediaBlock from "../components/MediaBlock.astro";
 import { workIndex } from "../data/work";
 ---
 
@@ -20,7 +21,9 @@ import { workIndex } from "../data/work";
               >
                 <span class="project-title" data-scramble-text="">{p.title}</span>
               </a>
-              <div class="project-preview" aria-hidden="true" />
+              <div class="project-preview" aria-hidden="true">
+                <MediaBlock src={p.preview} alt="" />
+              </div>
             </li>
           ))
         }
