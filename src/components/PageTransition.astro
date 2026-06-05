@@ -5,11 +5,15 @@
 <script>
   (() => {
     const storageKey = "cj-page-transition";
-    const outgoingCountTarget = 78;
+    const progressKey = "cj-page-transition-progress";
+    const outgoingProgressTarget = 34;
+    const loadingProgressTarget = 96;
+    const simulatedProgressTarget = 92;
     const overlay = document.getElementById("page-transition");
     const count = document.getElementById("page-transition-count");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const revealEvent = "cj:page-transition-revealed";
+    let currentCount = 0;
 
     if (!overlay || !count) return;
 
@@ -24,9 +28,17 @@
       window.dispatchEvent(new CustomEvent(revealEvent));
     };
 
-    const format = (value) => String(Math.max(0, Math.min(100, Math.round(value)))).padStart(2, "0");
+    const clampProgress = (value) => {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return 0;
+      return Math.max(0, Math.min(100, number));
+    };
+
+    const format = (value) => String(Math.round(clampProgress(value))).padStart(2, "0");
+
     const setCount = (value) => {
-      count.textContent = format(value);
+      currentCount = clampProgress(value);
+      count.textContent = format(currentCount);
     };
 
     const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
@@ -86,39 +98,75 @@
       });
     };
 
-    const waitForIncomingAssets = async () => {
+    const animateToProgress = (target, duration) =>
+      animateCount(currentCount, Math.max(currentCount, clampProgress(target)), duration);
+
+    const waitForIncomingAssets = async (startProgress) => {
       await nextFrame();
       await nextFrame();
+
+      const baseProgress = clampProgress(startProgress);
+      setCount(baseProgress);
 
       const images = collectTransitionImages();
       const total = images.length;
 
       if (!total) {
-        setCount(100);
+        await animateToProgress(100, reduced ? 0 : 520);
         return;
       }
 
       let loaded = images.filter((image) => image.complete).length;
       const pendingImages = images.filter((image) => !image.complete);
-      setCount(outgoingCountTarget + (loaded / total) * (100 - outgoingCountTarget));
+
+      const progressForLoadedImages = () =>
+        baseProgress + (Math.min(loaded, total) / total) * (loadingProgressTarget - baseProgress);
 
       if (!pendingImages.length) {
-        setCount(100);
+        await animateToProgress(progressForLoadedImages(), reduced ? 0 : 220);
+        await animateToProgress(100, reduced ? 0 : 520);
         return;
       }
 
+      let imageLoadingDone = false;
+      const loadingStartedAt = performance.now();
       const timeout = new Promise((resolve) => window.setTimeout(resolve, 10000));
       const imageLoading = Promise.all(
         pendingImages.map((image) =>
           waitForImage(image).then(() => {
             loaded += 1;
-            setCount(outgoingCountTarget + (Math.min(loaded, total) / total) * (100 - outgoingCountTarget));
           })
         )
       );
+      const imageLoadingGate = Promise.race([imageLoading, timeout]).then(() => {
+        imageLoadingDone = true;
+      });
 
-      await Promise.race([imageLoading, timeout]);
-      setCount(100);
+      await new Promise((resolve) => {
+        const tick = (now) => {
+          const elapsed = now - loadingStartedAt;
+          const simulatedProgress =
+            baseProgress +
+            Math.min(elapsed / 4200, 1) * (simulatedProgressTarget - baseProgress);
+          const target = Math.min(
+            loadingProgressTarget,
+            Math.max(progressForLoadedImages(), simulatedProgress)
+          );
+          const easing = imageLoadingDone ? 0.18 : 0.075;
+
+          setCount(currentCount + (target - currentCount) * easing);
+
+          if (!imageLoadingDone || elapsed < 560 || currentCount < Math.min(target, 99) - 0.7) {
+            requestAnimationFrame(tick);
+          } else {
+            resolve();
+          }
+        };
+
+        requestAnimationFrame(tick);
+      });
+
+      await imageLoadingGate;
 
       if (document.fonts?.ready) {
         await Promise.race([
@@ -126,13 +174,15 @@
           new Promise((resolve) => window.setTimeout(resolve, 500)),
         ]);
       }
+
+      await animateToProgress(100, reduced ? 0 : 420);
     };
 
     const resetOverlay = () => {
       document.documentElement.classList.remove("has-page-transition-enter");
       overlay.classList.add("is-resetting");
       overlay.classList.remove("is-covering", "is-exiting");
-      count.textContent = "00";
+      setCount(0);
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -146,6 +196,7 @@
 
       try {
         sessionStorage.removeItem(storageKey);
+        sessionStorage.removeItem(progressKey);
       } catch (_) {
         /* no-op */
       }
@@ -156,10 +207,16 @@
 
     const finishIncomingTransition = async () => {
       let shouldReveal = false;
+      let incomingProgress = outgoingProgressTarget;
 
       try {
         shouldReveal = sessionStorage.getItem(storageKey) === "1";
+        const storedProgress = Number(sessionStorage.getItem(progressKey));
+        if (Number.isFinite(storedProgress)) {
+          incomingProgress = clampProgress(storedProgress);
+        }
         sessionStorage.removeItem(storageKey);
+        sessionStorage.removeItem(progressKey);
       } catch (_) {
         shouldReveal = false;
       }
@@ -171,10 +228,10 @@
 
       window.__cjPageTransitionReady = false;
 
-      setCount(outgoingCountTarget);
+      setCount(incomingProgress);
       overlay.classList.add("is-covering");
 
-      await waitForIncomingAssets();
+      await waitForIncomingAssets(incomingProgress);
       await nextFrame();
       await nextFrame();
       document.documentElement.classList.remove("has-page-transition-enter");
@@ -210,14 +267,15 @@
       event.preventDefault();
 
       overlay.classList.remove("is-exiting");
-      count.textContent = "00";
+      setCount(0);
 
       await new Promise((resolve) => requestAnimationFrame(resolve));
       overlay.classList.add("is-covering");
-      await animateCount(0, outgoingCountTarget, 560);
+      await animateToProgress(outgoingProgressTarget, 560);
 
       try {
         sessionStorage.setItem(storageKey, "1");
+        sessionStorage.setItem(progressKey, String(Math.round(currentCount)));
       } catch (_) {
         /* no-op */
       }
