@@ -203,7 +203,14 @@ const lightboxGroups = contentSections.map((section) => ({
     )}
   </article>
 
-  <div class="project-lightbox" data-project-lightbox aria-hidden="true">
+  <div
+    class="project-lightbox"
+    data-project-lightbox
+    aria-hidden="true"
+    aria-label="Image agrandie du projet"
+    aria-modal="true"
+    role="dialog"
+  >
     <button class="project-lightbox-close interactive-zone" type="button" data-lightbox-close aria-label="Fermer l'image agrandie">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -222,7 +229,7 @@ const lightboxGroups = contentSections.map((section) => ({
       ›
     </button>
 
-    <p class="project-lightbox-counter" data-lightbox-counter aria-live="polite"></p>
+    <p class="project-lightbox-counter" data-lightbox-counter aria-live="polite" aria-atomic="true"></p>
   </div>
 
   <script type="application/json" id="project-lightbox-data" set:html={JSON.stringify(lightboxGroups)} />
@@ -281,8 +288,36 @@ const lightboxGroups = contentSections.map((section) => ({
     let currentGroup = 0;
     let currentIndex = 0;
     let lastFocused = null;
+    let previousBodyOverflow = "";
+    const backgroundElements = Array.from(document.querySelectorAll(".site-header, .project, .contact"));
+    const focusableSelector = [
+      "a[href]",
+      "button:not([disabled]):not([hidden])",
+      "textarea:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
 
     const getCurrentImages = () => groups[currentGroup]?.images ?? [];
+    const isOpen = () => overlay.getAttribute("aria-hidden") === "false";
+
+    const getFocusableLightboxElements = () => Array.from(overlay.querySelectorAll(focusableSelector))
+      .filter((element) => element instanceof HTMLElement && !element.hidden && element.getClientRects().length > 0);
+
+    const setBackgroundHidden = (hidden) => {
+      backgroundElements.forEach((element) => {
+        if (!(element instanceof HTMLElement)) return;
+
+        if (hidden) {
+          element.setAttribute("aria-hidden", "true");
+          element.setAttribute("inert", "");
+        } else {
+          element.removeAttribute("aria-hidden");
+          element.removeAttribute("inert");
+        }
+      });
+    };
 
     const showImage = (index) => {
       const images = getCurrentImages();
@@ -308,12 +343,17 @@ const lightboxGroups = contentSections.map((section) => ({
       showImage(currentIndex);
       overlay.setAttribute("aria-hidden", "false");
       document.documentElement.classList.add("project-lightbox-open");
+      previousBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      setBackgroundHidden(true);
       closeButton.focus({ preventScroll: true });
     };
 
     const closeLightbox = () => {
       overlay.setAttribute("aria-hidden", "true");
       document.documentElement.classList.remove("project-lightbox-open");
+      document.body.style.overflow = previousBodyOverflow;
+      setBackgroundHidden(false);
       image.removeAttribute("src");
       if (lastFocused instanceof HTMLElement) {
         lastFocused.focus({ preventScroll: true });
@@ -337,11 +377,41 @@ const lightboxGroups = contentSections.map((section) => ({
     });
 
     window.addEventListener("keydown", (event) => {
-      if (overlay.getAttribute("aria-hidden") === "true") return;
+      if (!isOpen()) return;
 
-      if (event.key === "Escape") closeLightbox();
-      if (event.key === "ArrowLeft") showImage(currentIndex - 1);
-      if (event.key === "ArrowRight") showImage(currentIndex + 1);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeLightbox();
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        showImage(currentIndex - 1);
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        showImage(currentIndex + 1);
+      }
+
+      if (event.key === "Tab") {
+        const focusableElements = getFocusableLightboxElements();
+        if (!focusableElements.length) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus({ preventScroll: true });
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus({ preventScroll: true });
+        }
+      }
     });
   })();
 </script>
