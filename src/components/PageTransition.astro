@@ -1,10 +1,11 @@
 <div id="page-transition" aria-hidden="true">
-  <span id="page-transition-count">100</span>
+  <span id="page-transition-count">00</span>
 </div>
 
 <script>
   (() => {
     const storageKey = "cj-page-transition";
+    const outgoingCountTarget = 78;
     const overlay = document.getElementById("page-transition");
     const count = document.getElementById("page-transition-count");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -24,10 +25,15 @@
     };
 
     const format = (value) => String(Math.max(0, Math.min(100, Math.round(value)))).padStart(2, "0");
+    const setCount = (value) => {
+      count.textContent = format(value);
+    };
+
+    const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 
     const animateCount = (from, to, duration) => {
       if (reduced) {
-        count.textContent = format(to);
+        setCount(to);
         return Promise.resolve();
       }
 
@@ -36,7 +42,7 @@
         const tick = (now) => {
           const progress = Math.min((now - start) / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
-          count.textContent = format(from + (to - from) * eased);
+          setCount(from + (to - from) * eased);
 
           if (progress < 1) {
             requestAnimationFrame(tick);
@@ -47,6 +53,79 @@
 
         requestAnimationFrame(tick);
       });
+    };
+
+    const imageIsReady = (image) => image.complete && image.naturalWidth > 0;
+
+    const collectTransitionImages = () => {
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      return Array.from(document.images).filter((image) => {
+        if (image.closest("#page-transition")) return false;
+        if (!image.currentSrc && !image.src) return false;
+
+        const rect = image.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return false;
+
+        if (image.loading !== "lazy") return true;
+
+        return rect.top < viewportHeight * 1.5 && rect.bottom > viewportHeight * -0.25;
+      });
+    };
+
+    const waitForImage = (image) => {
+      if (imageIsReady(image) || image.complete) return Promise.resolve();
+
+      if (typeof image.decode === "function") {
+        return image.decode().catch(() => undefined);
+      }
+
+      return new Promise((resolve) => {
+        image.addEventListener("load", resolve, { once: true });
+        image.addEventListener("error", resolve, { once: true });
+      });
+    };
+
+    const waitForIncomingAssets = async () => {
+      await nextFrame();
+      await nextFrame();
+
+      const images = collectTransitionImages();
+      const total = images.length;
+
+      if (!total) {
+        setCount(100);
+        return;
+      }
+
+      let loaded = images.filter((image) => image.complete).length;
+      const pendingImages = images.filter((image) => !image.complete);
+      setCount(outgoingCountTarget + (loaded / total) * (100 - outgoingCountTarget));
+
+      if (!pendingImages.length) {
+        setCount(100);
+        return;
+      }
+
+      const timeout = new Promise((resolve) => window.setTimeout(resolve, 10000));
+      const imageLoading = Promise.all(
+        pendingImages.map((image) =>
+          waitForImage(image).then(() => {
+            loaded += 1;
+            setCount(outgoingCountTarget + (Math.min(loaded, total) / total) * (100 - outgoingCountTarget));
+          })
+        )
+      );
+
+      await Promise.race([imageLoading, timeout]);
+      setCount(100);
+
+      if (document.fonts?.ready) {
+        await Promise.race([
+          document.fonts.ready.catch(() => undefined),
+          new Promise((resolve) => window.setTimeout(resolve, 500)),
+        ]);
+      }
     };
 
     const resetOverlay = () => {
@@ -92,9 +171,12 @@
 
       window.__cjPageTransitionReady = false;
 
+      setCount(outgoingCountTarget);
       overlay.classList.add("is-covering");
 
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      await waitForIncomingAssets();
+      await nextFrame();
+      await nextFrame();
       document.documentElement.classList.remove("has-page-transition-enter");
       overlay.classList.add("is-exiting");
 
@@ -132,7 +214,7 @@
 
       await new Promise((resolve) => requestAnimationFrame(resolve));
       overlay.classList.add("is-covering");
-      await animateCount(0, 100, 780);
+      await animateCount(0, outgoingCountTarget, 560);
 
       try {
         sessionStorage.setItem(storageKey, "1");
