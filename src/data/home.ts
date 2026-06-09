@@ -52,7 +52,7 @@ export const featuredProjects: FeaturedProject[] = [
     label: "WHITEOUT",
     href: "/work/projet-de-fin-d-annee",
     image: {
-      src: "",
+      src: "/images/home/whiteout.webp",
       alt: "Aperçu WHITEOUT",
     },
   },

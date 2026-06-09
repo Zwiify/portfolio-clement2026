@@ -17,9 +17,15 @@ export interface GalleryItem extends ImageAsset {
   tone?: PlaceholderTone;
 }
 
+export interface ProjectLink {
+  label: string;
+  href: string;
+}
+
 export interface ProjectSection {
   title: string;
   description?: string | string[];
+  links?: ProjectLink[];
   images?: GalleryItem[];
 }
 

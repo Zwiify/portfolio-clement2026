@@ -141,6 +141,15 @@ const lightboxGroups = contentSections.map((section) => ({
                 <h2>{section.title}</h2>
                 <div class="project-section-text">
                   {paragraphs.map((p) => <p>{p}</p>)}
+                  {(section.links?.length ?? 0) > 0 && (
+                    <div class="project-section-links" aria-label={`Liens - ${section.title}`}>
+                      {section.links?.map((link) => (
+                        <a class="project-section-link interactive-zone" href={link.href} target="_blank" rel="noreferrer">
+                          <span data-scramble-text="">{link.label}</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -572,6 +581,26 @@ const lightboxGroups = contentSections.map((section) => ({
     line-height: 1.32;
     letter-spacing: -0.035em;
     margin: 0;
+  }
+
+  .project-section-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1.2rem;
+    margin-top: 0.35rem;
+  }
+
+  .project-section-link {
+    color: inherit;
+    font-family: var(--font-body);
+    font-size: clamp(1.35rem, 1.65vw, 2rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.07em;
+    text-underline-offset: 0.13em;
+    text-decoration-skip-ink: auto;
   }
 
   /* ==========================================================

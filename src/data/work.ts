@@ -1,7 +1,7 @@
 import type { GalleryItem, WorkPageContent } from "./types";
 
 export const workIndex = [
-  { slug: "projet-de-fin-d-annee", title: "Projet de fin d'année", preview: "" },
+  { slug: "projet-de-fin-d-annee", title: "Projet de fin d'année", preview: "/images/work-previews/projet-de-fin-d-annee.webp" },
   { slug: "design-graphique", title: "Design Graphique", preview: "/images/work-previews/design-graphique.webp" },
   { slug: "dessin-d-intention", title: "Dessin d'intention", preview: "/images/work-previews/dessin-d-intention.webp" },
   {
@@ -36,13 +36,26 @@ export const workPages: Record<string, WorkPageContent> = {
     slug: "projet-de-fin-d-annee",
     title: "Projet de fin d'année",
     description: "Projet de fin d'année — WHITEOUT. Clément Jorge, 2026.",
-    heroImage: heroImage("Projet de fin d'année"),
+    heroImage: heroImage("Projet de fin d'année", "/images/work/projet-de-fin-d-annee/hero.webp"),
     sections: [
       {
         title: "WHITEOUT",
-        description:
-          "WHITEOUT part d'une idée assez simple : utiliser le blanc, non pas comme quelque chose de pur ou de calme, mais comme un signe d'effacement. À partir de la couleur “Cloud Dancer”, j'ai construit un univers autour de trois milieux — la mer, le sol et la forêt — qui disparaissent ou se dérèglent petit à petit. Je voulais surtout créer une sensation, quelque chose d'un peu froid et inquiétant, avant même d'être explicatif.",
-        images: gallery("WHITEOUT"),
+        description: [
+          "WHITEOUT est un microsite contemplatif construit autour du blanc comme signal d'effacement. À partir de la couleur Cloud Dancer, le projet met en scène plusieurs environnements naturels en 3D — nuages, coraux et forêt — qui se dégradent progressivement. L'objectif n'était pas de produire un discours documentaire, mais de créer une expérience sensible : faire ressentir la disparition avant de l'expliquer.",
+          "La production a été réalisée principalement sur Blender, avec des scènes séparées, des animations en boucle, des volumes, des particules et un travail d'optimisation pour préparer les rendus avant l'intégration web. Les séquences ont ensuite été compositées et intégrées dans un parcours en scroll, où chaque transition accompagne la transformation des milieux.",
+        ],
+        links: [
+          {
+            label: "Voir le site WHITEOUT",
+            href: "https://pfawhiteout.netlify.app/",
+          },
+        ],
+        images: gallery("WHITEOUT", [
+          "/images/work/projet-de-fin-d-annee/corals-01.webp",
+          "/images/work/projet-de-fin-d-annee/corals-02.webp",
+          "/images/work/projet-de-fin-d-annee/forest-01.webp",
+          "/images/work/projet-de-fin-d-annee/forest-02.webp",
+        ]),
       },
     ],
   },
